@@ -1,7 +1,7 @@
 //go:build darwin || linux || aix
 // +build darwin linux aix
 
-package uv
+package gamma
 
 import "golang.org/x/sys/unix"
 

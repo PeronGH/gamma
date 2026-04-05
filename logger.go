@@ -1,4 +1,4 @@
-package uv
+package gamma
 
 // Logger is a simple logger interface.
 type Logger interface {

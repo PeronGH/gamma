@@ -17,8 +17,8 @@ import (
 
 	_ "image/jpeg" // Register JPEG format
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/screen"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/ansi/iterm2"
 	"github.com/charmbracelet/x/ansi/kitty"
@@ -68,7 +68,7 @@ func init() {
 func main() {
 	flag.Parse()
 
-	t := uv.DefaultTerminal()
+	t := gamma.DefaultTerminal()
 	if err := t.Start(); err != nil {
 		log.Fatalf("failed to start terminal: %v", err)
 	}
@@ -81,7 +81,7 @@ func main() {
 	scr.EnterAltScreen() //nolint:errcheck
 
 	// Enable mouse support.
-	scr.SetMouseMode(uv.MouseModeClick)
+	scr.SetMouseMode(gamma.MouseModeClick)
 
 	// Get image info.
 	charmImgFile, err := os.Open("./charm.jpg")
@@ -109,8 +109,8 @@ func main() {
 
 	// Image related variables.
 	var (
-		winSize uv.WindowSizeEvent
-		pixSize uv.PixelSizeEvent
+		winSize gamma.WindowSizeEvent
+		pixSize gamma.PixelSizeEvent
 		imgEnc  = blocksEncoding
 	)
 	if desiredEnc > 0 {
@@ -170,10 +170,10 @@ func main() {
 	imgOffsetX = winSize.Width/2 - imgCellW/2
 	imgOffsetY = winSize.Height/2 - imgCellH/2
 
-	fillStyle := uv.Style{Fg: ansi.IndexedColor(240)}
+	fillStyle := gamma.Style{Fg: ansi.IndexedColor(240)}
 	displayImg := func() {
 		img := charmImg
-		imgArea := uv.Rect(
+		imgArea := gamma.Rect(
 			imgOffsetX,
 			imgOffsetY,
 			imgCellW,
@@ -188,14 +188,14 @@ func main() {
 
 		// Clear the screen.
 		screen.Clear(scr)
-		fill := uv.Cell{Content: "/", Width: 1, Style: fillStyle}
+		fill := gamma.Cell{Content: "/", Width: 1, Style: fillStyle}
 		screen.Fill(scr, &fill)
 
 		// Draw the image on the screen.
 		switch imgEnc {
 		case blocksEncoding:
 			blocks := mosaic.New().Width(imgCellW).Height(imgCellH).Scale(2)
-			ss := uv.NewStyledString(blocks.Render(img))
+			ss := gamma.NewStyledString(blocks.Render(img))
 			ss.Draw(scr, imgArea)
 
 		case itermEncoding, sixelEncoding:
@@ -227,7 +227,7 @@ func main() {
 					content = ansi.CursorForward(imgArea.Dx())
 				}
 
-				scr.SetCell(imgArea.Min.X, y, &uv.Cell{
+				scr.SetCell(imgArea.Min.X, y, &gamma.Cell{
 					Content: content,
 					Width:   imgArea.Dx(),
 				})
@@ -282,14 +282,14 @@ func main() {
 				if extra > 0 {
 					content = append(content, kitty.Diacritic(extra))
 				}
-				scr.SetCell(imgArea.Min.X, imgArea.Min.Y+y, &uv.Cell{
-					Style:   uv.Style{Fg: fg},
+				scr.SetCell(imgArea.Min.X, imgArea.Min.Y+y, &gamma.Cell{
+					Style:   gamma.Style{Fg: fg},
 					Content: string(content),
 					Width:   1,
 				})
 				for x := 1; x < imgArea.Dx(); x++ {
-					scr.SetCell(imgArea.Min.X+x, imgArea.Min.Y+y, &uv.Cell{
-						Style:   uv.Style{Fg: fg},
+					scr.SetCell(imgArea.Min.X+x, imgArea.Min.Y+y, &gamma.Cell{
+						Style:   gamma.Style{Fg: fg},
 						Content: string(kitty.Placeholder),
 						Width:   1,
 					})
@@ -320,7 +320,7 @@ LOOP:
 			break LOOP
 		case ev := <-t.Events():
 			switch ev := ev.(type) {
-			case uv.PixelSizeEvent:
+			case gamma.PixelSizeEvent:
 				// XXX: This is only emitted with traditional Unix systems. On
 				// Windows, we would need to use [ansi.RequestWindowSizeWinOp] to
 				// get the pixel size.
@@ -329,7 +329,7 @@ LOOP:
 				imgOffsetX = winSize.Width/2 - imgCellW/2
 				imgOffsetY = winSize.Height/2 - imgCellH/2
 				displayImg()
-			case uv.WindowSizeEvent:
+			case gamma.WindowSizeEvent:
 				winSize = ev
 				imgCellW, imgCellH = imgCellSize()
 				imgOffsetX = winSize.Width/2 - imgCellW/2
@@ -340,7 +340,7 @@ LOOP:
 				}
 
 				displayImg()
-			case uv.KeyPressEvent:
+			case gamma.KeyPressEvent:
 				switch {
 				case ev.MatchString("q", "ctrl+c"):
 					cancel() // This will stop the loop
@@ -355,30 +355,30 @@ LOOP:
 				}
 
 				displayImg()
-			case uv.MouseClickEvent:
+			case gamma.MouseClickEvent:
 				imgOffsetX = ev.X - (imgCellW / 2)
 				imgOffsetY = ev.Y - (imgCellH / 2)
 
 				displayImg()
-			case uv.PrimaryDeviceAttributesEvent:
+			case gamma.PrimaryDeviceAttributesEvent:
 				if slices.Contains(ev, 4) {
 					upgradeEnc(sixelEncoding)
 					displayImg()
 				}
 
-			case uv.TerminalVersionEvent:
+			case gamma.TerminalVersionEvent:
 				if strings.Contains(ev.Name, "iTerm") || strings.Contains(ev.Name, "WezTerm") {
 					upgradeEnc(itermEncoding)
 					displayImg()
 				}
 
-			case uv.WindowOpEvent:
+			case gamma.WindowOpEvent:
 				// Here 4 corresponds to the window size response.
 				if ev.Op == 4 && len(ev.Args) >= 2 {
 					pixSize.Height = ev.Args[0]
 					pixSize.Width = ev.Args[1]
 				}
-			case uv.KittyGraphicsEvent:
+			case gamma.KittyGraphicsEvent:
 				if strings.Contains(termType, "wezterm") ||
 					strings.Contains(termVersion, "WezTerm") ||
 					strings.Contains(termProg, "WezTerm") {

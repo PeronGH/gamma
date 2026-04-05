@@ -1,7 +1,7 @@
 //go:build darwin || linux || freebsd || solaris || aix
 // +build darwin linux freebsd solaris aix
 
-package uv
+package gamma
 
 import "golang.org/x/sys/unix"
 

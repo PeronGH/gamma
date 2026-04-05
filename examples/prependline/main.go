@@ -5,13 +5,13 @@ import (
 	"log"
 	"math/rand"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/screen"
 	"github.com/charmbracelet/x/ansi"
 )
 
 func main() {
-	t := uv.DefaultTerminal()
+	t := gamma.DefaultTerminal()
 	scr := t.Screen()
 
 	if err := t.Start(); err != nil {
@@ -22,18 +22,18 @@ func main() {
 
 	scr.WriteString(ansi.SetWindowTitle("Hello, World!"))
 
-	var st uv.Style
+	var st gamma.Style
 	bg := 1
 	st.Bg = ansi.BasicColor(bg)
 	st.Fg = ansi.Black
 
 	display := func() {
 		const hw = "Hello, World!"
-		bg := uv.EmptyCell
+		bg := gamma.EmptyCell
 		bg.Style = st
-		screen.FillArea(scr, &bg, uv.Rect(0, 0, scr.Bounds().Dx(), 1))
+		screen.FillArea(scr, &bg, gamma.Rect(0, 0, scr.Bounds().Dx(), 1))
 		for i, r := range hw {
-			scr.SetCell(i, 0, &uv.Cell{
+			scr.SetCell(i, 0, &gamma.Cell{
 				Content: string(r),
 				Style:   st,
 				Width:   1,
@@ -49,11 +49,11 @@ func main() {
 	var width int
 	for ev := range t.Events() {
 		switch ev := ev.(type) {
-		case uv.WindowSizeEvent:
+		case gamma.WindowSizeEvent:
 			width = ev.Width
 			scr.Resize(width, 1)
 			display()
-		case uv.KeyPressEvent:
+		case gamma.KeyPressEvent:
 			switch {
 			case ev.MatchString("q", "ctrl+c"):
 				return

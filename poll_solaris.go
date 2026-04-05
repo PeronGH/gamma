@@ -1,7 +1,7 @@
 //go:build solaris
 // +build solaris
 
-package uv
+package gamma
 
 import "io"
 

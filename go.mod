@@ -1,4 +1,4 @@
-module github.com/PeronGH/ultraviolet
+module github.com/PeronGH/gamma
 
 go 1.25.0
 

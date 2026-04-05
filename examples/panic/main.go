@@ -8,14 +8,14 @@ import (
 	"runtime/debug"
 	"time"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/screen"
 )
 
 type tickEvent struct{}
 
 func main() {
-	t := uv.DefaultTerminal()
+	t := gamma.DefaultTerminal()
 	scr := t.Screen()
 
 	if err := t.Start(); err != nil {
@@ -57,9 +57,9 @@ OUT:
 			break OUT
 		case ev := <-t.Events():
 			switch e := ev.(type) {
-			case uv.WindowSizeEvent:
+			case gamma.WindowSizeEvent:
 				scr.Resize(e.Width, 2)
-			case uv.KeyPressEvent:
+			case gamma.KeyPressEvent:
 				switch {
 				case e.MatchString("q", "ctrl+c"):
 					cancel()
@@ -73,12 +73,12 @@ OUT:
 			}
 		}
 
-		ss := uv.NewStyledString(view(counter))
+		ss := gamma.NewStyledString(view(counter))
 		screen.Clear(scr)
 		scr.Display(ss)
 	}
 
-	ss := uv.NewStyledString(view(counter) + "\n")
+	ss := gamma.NewStyledString(view(counter) + "\n")
 	screen.Clear(scr)
 	scr.Display(ss)
 

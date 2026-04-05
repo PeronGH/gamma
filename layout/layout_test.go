@@ -6,14 +6,14 @@ import (
 	"strings"
 	"testing"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/screen"
 )
 
 func BenchmarkLayout_Split(b *testing.B) {
 	layout := Vertical(Len(2), Fill(1), Ratio{1, 5}, Percent(10))
 
-	area := uv.Rect(123, 123, 1000, 2000)
+	area := gamma.Rect(123, 123, 1000, 2000)
 
 	b.Run("without cache", func(b *testing.B) {
 		for b.Loop() {
@@ -363,7 +363,7 @@ func TestRatio(t *testing.T) {
 	}
 }
 
-type Rect = uv.Rectangle
+type Rect = gamma.Rectangle
 
 func TestEdgeCases(t *testing.T) {
 	t.Parallel()
@@ -383,11 +383,11 @@ func TestEdgeCases(t *testing.T) {
 				Min(0),
 			},
 			direction: DirectionVertical,
-			split:     uv.Rect(0, 0, 1, 1),
+			split:     gamma.Rect(0, 0, 1, 1),
 			want: []Rect{
-				uv.Rect(0, 0, 1, 1),
-				uv.Rect(0, 1, 1, 0),
-				uv.Rect(0, 1, 1, 0),
+				gamma.Rect(0, 0, 1, 1),
+				gamma.Rect(0, 1, 1, 0),
+				gamma.Rect(0, 1, 1, 0),
 			},
 		},
 		{
@@ -398,11 +398,11 @@ func TestEdgeCases(t *testing.T) {
 				Min(0),
 			},
 			direction: DirectionVertical,
-			split:     uv.Rect(0, 0, 1, 1),
+			split:     gamma.Rect(0, 0, 1, 1),
 			want: []Rect{
-				uv.Rect(0, 0, 1, 0),
-				uv.Rect(0, 0, 1, 1),
-				uv.Rect(0, 1, 1, 0),
+				gamma.Rect(0, 0, 1, 0),
+				gamma.Rect(0, 0, 1, 1),
+				gamma.Rect(0, 1, 1, 0),
 			},
 		},
 		{
@@ -413,11 +413,11 @@ func TestEdgeCases(t *testing.T) {
 				Min(1),
 			},
 			direction: DirectionHorizontal,
-			split:     uv.Rect(0, 0, 1, 1),
+			split:     gamma.Rect(0, 0, 1, 1),
 			want: []Rect{
-				uv.Rect(0, 0, 1, 1),
-				uv.Rect(1, 0, 0, 1),
-				uv.Rect(1, 0, 0, 1),
+				gamma.Rect(0, 0, 1, 1),
+				gamma.Rect(1, 0, 0, 1),
+				gamma.Rect(1, 0, 0, 1),
 			},
 		},
 		{
@@ -429,12 +429,12 @@ func TestEdgeCases(t *testing.T) {
 				Min(4),
 			},
 			direction: DirectionHorizontal,
-			split:     uv.Rect(0, 0, 7, 1),
+			split:     gamma.Rect(0, 0, 7, 1),
 			want: []Rect{
-				uv.Rect(0, 0, 0, 1),
-				uv.Rect(0, 0, 4, 1),
-				uv.Rect(4, 0, 0, 1),
-				uv.Rect(4, 0, 3, 1),
+				gamma.Rect(0, 0, 0, 1),
+				gamma.Rect(0, 0, 4, 1),
+				gamma.Rect(4, 0, 0, 1),
+				gamma.Rect(4, 0, 3, 1),
 			},
 		},
 	}
@@ -950,7 +950,7 @@ func TestFlexConstraint(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			rect := uv.Rect(0, 0, 100, 1)
+			rect := gamma.Rect(0, 0, 100, 1)
 
 			rects := Horizontal(tc.constraints...).WithFlex(tc.flex).Split(rect)
 
@@ -1089,7 +1089,7 @@ func TestFlexSpacing(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			rect := uv.Rect(0, 0, 100, 1)
+			rect := gamma.Rect(0, 0, 100, 1)
 
 			splitted := Horizontal(tc.constraints...).
 				WithFlex(tc.flex).
@@ -1112,7 +1112,7 @@ func TestFlexSpacing(t *testing.T) {
 func letters(t *testing.T, flex Flex, constraints []Constraint, width int, expected string) {
 	t.Helper()
 
-	area := uv.Rect(0, 0, width, 1)
+	area := gamma.Rect(0, 0, width, 1)
 
 	layout := Layout{
 		Direction:   DirectionHorizontal,
@@ -1120,7 +1120,7 @@ func letters(t *testing.T, flex Flex, constraints []Constraint, width int, expec
 		Flex:        flex,
 	}.Split(area)
 
-	got := uv.NewScreenBuffer(area.Dx(), area.Dy())
+	got := gamma.NewScreenBuffer(area.Dx(), area.Dy())
 
 	latin := []rune("abcdefghijklmnopqrstuvwxyz")
 
@@ -1130,7 +1130,7 @@ func letters(t *testing.T, flex Flex, constraints []Constraint, width int, expec
 
 		s := strings.Repeat(string(c), area.Dx())
 
-		buffer := uv.NewScreenBuffer(area.Dx(), area.Dy())
+		buffer := gamma.NewScreenBuffer(area.Dx(), area.Dy())
 
 		screen.NewContext(buffer).WriteString(s)
 
@@ -1144,7 +1144,7 @@ func letters(t *testing.T, flex Flex, constraints []Constraint, width int, expec
 	}
 }
 
-func newBufferString(s string) uv.ScreenBuffer {
+func newBufferString(s string) gamma.ScreenBuffer {
 	var width, height int
 
 	for line := range strings.Lines(s) {
@@ -1152,7 +1152,7 @@ func newBufferString(s string) uv.ScreenBuffer {
 		height++
 	}
 
-	buf := uv.NewScreenBuffer(width, height)
+	buf := gamma.NewScreenBuffer(width, height)
 
 	screen.NewContext(buf).WriteString(s)
 

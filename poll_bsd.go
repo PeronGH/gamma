@@ -1,7 +1,7 @@
 //go:build darwin || freebsd || netbsd || openbsd || dragonfly
 // +build darwin freebsd netbsd openbsd dragonfly
 
-package uv
+package gamma
 
 import (
 	"errors"

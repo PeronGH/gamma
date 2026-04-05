@@ -4,54 +4,54 @@ import (
 	"fmt"
 	"testing"
 
-	uv "github.com/PeronGH/ultraviolet"
+	gamma "github.com/PeronGH/gamma"
 	"github.com/charmbracelet/x/ansi"
 )
 
 // mockScreen is a basic screen implementation for testing
 type mockScreen struct {
-	*uv.Buffer
+	*gamma.Buffer
 	method ansi.Method
 }
 
 func newMockScreen(width, height int) *mockScreen {
 	return &mockScreen{
-		Buffer: uv.NewBuffer(width, height),
+		Buffer: gamma.NewBuffer(width, height),
 		method: ansi.WcWidth,
 	}
 }
 
-func (m *mockScreen) Bounds() uv.Rectangle {
+func (m *mockScreen) Bounds() gamma.Rectangle {
 	return m.Buffer.Bounds()
 }
 
-func (m *mockScreen) CellAt(x, y int) *uv.Cell {
+func (m *mockScreen) CellAt(x, y int) *gamma.Cell {
 	return m.Buffer.CellAt(x, y)
 }
 
-func (m *mockScreen) SetCell(x, y int, c *uv.Cell) {
+func (m *mockScreen) SetCell(x, y int, c *gamma.Cell) {
 	m.Buffer.SetCell(x, y, c)
 }
 
-func (m *mockScreen) WidthMethod() uv.WidthMethod {
+func (m *mockScreen) WidthMethod() gamma.WidthMethod {
 	return m.method
 }
 
 // minimalMockScreen is a minimal screen that only implements the required Screen interface
 // and doesn't have any of the optional methods (Clear, Fill, Clone, etc.)
 type minimalMockScreen struct {
-	cells  [][]uv.Cell
+	cells  [][]gamma.Cell
 	width  int
 	height int
 	method ansi.Method
 }
 
 func newMinimalMockScreen(width, height int) *minimalMockScreen {
-	cells := make([][]uv.Cell, height)
+	cells := make([][]gamma.Cell, height)
 	for i := range cells {
-		cells[i] = make([]uv.Cell, width)
+		cells[i] = make([]gamma.Cell, width)
 		for j := range cells[i] {
-			cells[i][j] = uv.EmptyCell
+			cells[i][j] = gamma.EmptyCell
 		}
 	}
 	return &minimalMockScreen{
@@ -62,35 +62,35 @@ func newMinimalMockScreen(width, height int) *minimalMockScreen {
 	}
 }
 
-func (m *minimalMockScreen) Bounds() uv.Rectangle {
-	return uv.Rect(0, 0, m.width, m.height)
+func (m *minimalMockScreen) Bounds() gamma.Rectangle {
+	return gamma.Rect(0, 0, m.width, m.height)
 }
 
-func (m *minimalMockScreen) CellAt(x, y int) *uv.Cell {
+func (m *minimalMockScreen) CellAt(x, y int) *gamma.Cell {
 	if x < 0 || x >= m.width || y < 0 || y >= m.height {
 		return nil
 	}
 	return &m.cells[y][x]
 }
 
-func (m *minimalMockScreen) SetCell(x, y int, c *uv.Cell) {
+func (m *minimalMockScreen) SetCell(x, y int, c *gamma.Cell) {
 	if x < 0 || x >= m.width || y < 0 || y >= m.height {
 		return
 	}
 	if c == nil {
-		m.cells[y][x] = uv.EmptyCell
+		m.cells[y][x] = gamma.EmptyCell
 	} else {
 		m.cells[y][x] = *c
 	}
 }
 
-func (m *minimalMockScreen) WidthMethod() uv.WidthMethod {
+func (m *minimalMockScreen) WidthMethod() gamma.WidthMethod {
 	return m.method
 }
 
 // nilCellMockScreen is a screen that can return nil for certain cells
 type nilCellMockScreen struct {
-	cells        map[string]*uv.Cell
+	cells        map[string]*gamma.Cell
 	width        int
 	height       int
 	method       ansi.Method
@@ -99,7 +99,7 @@ type nilCellMockScreen struct {
 
 func newNilCellMockScreen(width, height int) *nilCellMockScreen {
 	return &nilCellMockScreen{
-		cells:        make(map[string]*uv.Cell),
+		cells:        make(map[string]*gamma.Cell),
 		width:        width,
 		height:       height,
 		method:       ansi.WcWidth,
@@ -107,11 +107,11 @@ func newNilCellMockScreen(width, height int) *nilCellMockScreen {
 	}
 }
 
-func (m *nilCellMockScreen) Bounds() uv.Rectangle {
-	return uv.Rect(0, 0, m.width, m.height)
+func (m *nilCellMockScreen) Bounds() gamma.Rectangle {
+	return gamma.Rect(0, 0, m.width, m.height)
 }
 
-func (m *nilCellMockScreen) CellAt(x, y int) *uv.Cell {
+func (m *nilCellMockScreen) CellAt(x, y int) *gamma.Cell {
 	if x < 0 || x >= m.width || y < 0 || y >= m.height {
 		return nil
 	}
@@ -123,24 +123,24 @@ func (m *nilCellMockScreen) CellAt(x, y int) *uv.Cell {
 		return cell
 	}
 	// Return empty cell by default
-	empty := uv.EmptyCell
+	empty := gamma.EmptyCell
 	return &empty
 }
 
-func (m *nilCellMockScreen) SetCell(x, y int, c *uv.Cell) {
+func (m *nilCellMockScreen) SetCell(x, y int, c *gamma.Cell) {
 	if x < 0 || x >= m.width || y < 0 || y >= m.height {
 		return
 	}
 	key := fmt.Sprintf("%d,%d", x, y)
 	if c == nil {
-		m.cells[key] = &uv.EmptyCell
+		m.cells[key] = &gamma.EmptyCell
 	} else {
 		cellCopy := *c
 		m.cells[key] = &cellCopy
 	}
 }
 
-func (m *nilCellMockScreen) WidthMethod() uv.WidthMethod {
+func (m *nilCellMockScreen) WidthMethod() gamma.WidthMethod {
 	return m.method
 }
 
@@ -164,10 +164,10 @@ func (m *mockScreenWithClear) Clear() {
 type mockScreenWithClearArea struct {
 	*mockScreen
 	clearAreaCalled bool
-	lastArea        uv.Rectangle
+	lastArea        gamma.Rectangle
 }
 
-func (m *mockScreenWithClearArea) ClearArea(area uv.Rectangle) {
+func (m *mockScreenWithClearArea) ClearArea(area gamma.Rectangle) {
 	m.clearAreaCalled = true
 	m.lastArea = area
 	m.Buffer.ClearArea(area)
@@ -177,10 +177,10 @@ func (m *mockScreenWithClearArea) ClearArea(area uv.Rectangle) {
 type mockScreenWithFill struct {
 	*mockScreen
 	fillCalled bool
-	lastCell   *uv.Cell
+	lastCell   *gamma.Cell
 }
 
-func (m *mockScreenWithFill) Fill(cell *uv.Cell) {
+func (m *mockScreenWithFill) Fill(cell *gamma.Cell) {
 	m.fillCalled = true
 	m.lastCell = cell
 	m.Buffer.Fill(cell)
@@ -190,11 +190,11 @@ func (m *mockScreenWithFill) Fill(cell *uv.Cell) {
 type mockScreenWithFillArea struct {
 	*mockScreen
 	fillAreaCalled bool
-	lastCell       *uv.Cell
-	lastArea       uv.Rectangle
+	lastCell       *gamma.Cell
+	lastArea       gamma.Rectangle
 }
 
-func (m *mockScreenWithFillArea) FillArea(cell *uv.Cell, area uv.Rectangle) {
+func (m *mockScreenWithFillArea) FillArea(cell *gamma.Cell, area gamma.Rectangle) {
 	m.fillAreaCalled = true
 	m.lastCell = cell
 	m.lastArea = area
@@ -207,7 +207,7 @@ type mockScreenWithClone struct {
 	cloneCalled bool
 }
 
-func (m *mockScreenWithClone) Clone() *uv.Buffer {
+func (m *mockScreenWithClone) Clone() *gamma.Buffer {
 	m.cloneCalled = true
 	return m.Buffer.Clone()
 }
@@ -216,10 +216,10 @@ func (m *mockScreenWithClone) Clone() *uv.Buffer {
 type mockScreenWithCloneArea struct {
 	*mockScreen
 	cloneAreaCalled bool
-	lastArea        uv.Rectangle
+	lastArea        gamma.Rectangle
 }
 
-func (m *mockScreenWithCloneArea) CloneArea(area uv.Rectangle) *uv.Buffer {
+func (m *mockScreenWithCloneArea) CloneArea(area gamma.Rectangle) *gamma.Buffer {
 	m.cloneAreaCalled = true
 	m.lastArea = area
 	return m.Buffer.CloneArea(area)
@@ -232,7 +232,7 @@ func TestClear(t *testing.T) {
 		}
 
 		// Set some cells
-		testCell := &uv.Cell{Content: "X", Width: 1}
+		testCell := &gamma.Cell{Content: "X", Width: 1}
 		scr.SetCell(0, 0, testCell)
 		scr.SetCell(5, 2, testCell)
 
@@ -255,7 +255,7 @@ func TestClear(t *testing.T) {
 		scr := newMockScreen(10, 5)
 
 		// Set some cells
-		testCell := &uv.Cell{Content: "X", Width: 1}
+		testCell := &gamma.Cell{Content: "X", Width: 1}
 		scr.SetCell(0, 0, testCell)
 		scr.SetCell(5, 2, testCell)
 
@@ -278,14 +278,14 @@ func TestClearArea(t *testing.T) {
 		}
 
 		// Set cells across the screen
-		testCell := &uv.Cell{Content: "X", Width: 1}
+		testCell := &gamma.Cell{Content: "X", Width: 1}
 		for y := 0; y < 5; y++ {
 			for x := 0; x < 10; x++ {
 				scr.SetCell(x, y, testCell)
 			}
 		}
 
-		area := uv.Rect(2, 1, 4, 2)
+		area := gamma.Rect(2, 1, 4, 2)
 		ClearArea(scr, area)
 
 		if !scr.clearAreaCalled {
@@ -319,14 +319,14 @@ func TestClearArea(t *testing.T) {
 		scr := newMockScreen(10, 5)
 
 		// Set cells across the screen
-		testCell := &uv.Cell{Content: "X", Width: 1}
+		testCell := &gamma.Cell{Content: "X", Width: 1}
 		for y := 0; y < 5; y++ {
 			for x := 0; x < 10; x++ {
 				scr.SetCell(x, y, testCell)
 			}
 		}
 
-		area := uv.Rect(2, 1, 4, 2)
+		area := gamma.Rect(2, 1, 4, 2)
 		ClearArea(scr, area)
 
 		// Verify only the area is cleared
@@ -355,7 +355,7 @@ func TestFill(t *testing.T) {
 			mockScreen: newMockScreen(10, 5),
 		}
 
-		fillCell := &uv.Cell{Content: "F", Width: 1}
+		fillCell := &gamma.Cell{Content: "F", Width: 1}
 		Fill(scr, fillCell)
 
 		if !scr.fillCalled {
@@ -380,7 +380,7 @@ func TestFill(t *testing.T) {
 	t.Run("without Fill method", func(t *testing.T) {
 		scr := newMockScreen(10, 5)
 
-		fillCell := &uv.Cell{Content: "F", Width: 1}
+		fillCell := &gamma.Cell{Content: "F", Width: 1}
 		Fill(scr, fillCell)
 
 		// Verify all cells are filled
@@ -398,7 +398,7 @@ func TestFill(t *testing.T) {
 		scr := newMockScreen(10, 5)
 
 		// Set some cells first
-		testCell := &uv.Cell{Content: "X", Width: 1}
+		testCell := &gamma.Cell{Content: "X", Width: 1}
 		scr.SetCell(0, 0, testCell)
 		scr.SetCell(5, 2, testCell)
 
@@ -422,8 +422,8 @@ func TestFillArea(t *testing.T) {
 			mockScreen: newMockScreen(10, 5),
 		}
 
-		fillCell := &uv.Cell{Content: "A", Width: 1}
-		area := uv.Rect(2, 1, 4, 2)
+		fillCell := &gamma.Cell{Content: "A", Width: 1}
+		area := gamma.Rect(2, 1, 4, 2)
 		FillArea(scr, fillCell, area)
 
 		if !scr.fillAreaCalled {
@@ -457,8 +457,8 @@ func TestFillArea(t *testing.T) {
 			mockScreen: newMockScreen(10, 5),
 		}
 
-		fillCell := &uv.Cell{Content: "混", Width: 2}
-		area := uv.Rect(0, 1, 4, 2)
+		fillCell := &gamma.Cell{Content: "混", Width: 2}
+		area := gamma.Rect(0, 1, 4, 2)
 		FillArea(scr, fillCell, area)
 
 		if !scr.fillAreaCalled {
@@ -490,8 +490,8 @@ func TestFillArea(t *testing.T) {
 	t.Run("without FillArea method", func(t *testing.T) {
 		scr := newMockScreen(10, 5)
 
-		fillCell := &uv.Cell{Content: "B", Width: 1}
-		area := uv.Rect(2, 1, 4, 2)
+		fillCell := &gamma.Cell{Content: "B", Width: 1}
+		area := gamma.Rect(2, 1, 4, 2)
 		FillArea(scr, fillCell, area)
 
 		// Verify only the area is filled
@@ -512,14 +512,14 @@ func TestFillArea(t *testing.T) {
 		scr := newMockScreen(10, 5)
 
 		// Set cells across the screen
-		testCell := &uv.Cell{Content: "X", Width: 1}
+		testCell := &gamma.Cell{Content: "X", Width: 1}
 		for y := 0; y < 5; y++ {
 			for x := 0; x < 10; x++ {
 				scr.SetCell(x, y, testCell)
 			}
 		}
 
-		area := uv.Rect(2, 1, 4, 2)
+		area := gamma.Rect(2, 1, 4, 2)
 		FillArea(scr, nil, area)
 
 		// Verify only the area is cleared
@@ -549,9 +549,9 @@ func TestClone(t *testing.T) {
 		}
 
 		// Set some cells
-		scr.SetCell(0, 0, &uv.Cell{Content: "A", Width: 1})
-		scr.SetCell(5, 2, &uv.Cell{Content: "B", Width: 1})
-		scr.SetCell(9, 4, &uv.Cell{Content: "C", Width: 1})
+		scr.SetCell(0, 0, &gamma.Cell{Content: "A", Width: 1})
+		scr.SetCell(5, 2, &gamma.Cell{Content: "B", Width: 1})
+		scr.SetCell(9, 4, &gamma.Cell{Content: "C", Width: 1})
 
 		cloned := Clone(scr)
 
@@ -584,9 +584,9 @@ func TestClone(t *testing.T) {
 		scr := newMockScreen(10, 5)
 
 		// Set some cells
-		scr.SetCell(0, 0, &uv.Cell{Content: "A", Width: 1})
-		scr.SetCell(5, 2, &uv.Cell{Content: "B", Width: 1})
-		scr.SetCell(9, 4, &uv.Cell{Content: "C", Width: 1})
+		scr.SetCell(0, 0, &gamma.Cell{Content: "A", Width: 1})
+		scr.SetCell(5, 2, &gamma.Cell{Content: "B", Width: 1})
+		scr.SetCell(9, 4, &gamma.Cell{Content: "C", Width: 1})
 
 		cloned := Clone(scr)
 
@@ -622,11 +622,11 @@ func TestCloneArea(t *testing.T) {
 		for y := 0; y < 5; y++ {
 			for x := 0; x < 10; x++ {
 				content := string(rune('A' + y*10 + x))
-				scr.SetCell(x, y, &uv.Cell{Content: content, Width: 1})
+				scr.SetCell(x, y, &gamma.Cell{Content: content, Width: 1})
 			}
 		}
 
-		area := uv.Rect(2, 1, 4, 2)
+		area := gamma.Rect(2, 1, 4, 2)
 		cloned := CloneArea(scr, area)
 
 		if !scr.cloneAreaCalled {
@@ -665,11 +665,11 @@ func TestCloneArea(t *testing.T) {
 		for y := 0; y < 5; y++ {
 			for x := 0; x < 10; x++ {
 				content := string(rune('A' + y*10 + x))
-				scr.SetCell(x, y, &uv.Cell{Content: content, Width: 1})
+				scr.SetCell(x, y, &gamma.Cell{Content: content, Width: 1})
 			}
 		}
 
-		area := uv.Rect(2, 1, 4, 2)
+		area := gamma.Rect(2, 1, 4, 2)
 		cloned := CloneArea(scr, area)
 
 		if cloned == nil {
@@ -697,11 +697,11 @@ func TestCloneArea(t *testing.T) {
 		scr := newMockScreen(10, 5)
 
 		// Set some cells but leave some as zero
-		scr.SetCell(2, 1, &uv.Cell{Content: "A", Width: 1})
-		scr.SetCell(4, 2, &uv.Cell{Content: "B", Width: 1})
+		scr.SetCell(2, 1, &gamma.Cell{Content: "A", Width: 1})
+		scr.SetCell(4, 2, &gamma.Cell{Content: "B", Width: 1})
 		// Leave (3,1) and (5,2) as zero cells
 
-		area := uv.Rect(2, 1, 4, 2)
+		area := gamma.Rect(2, 1, 4, 2)
 		cloned := CloneArea(scr, area)
 
 		if cloned == nil {
@@ -728,17 +728,17 @@ func TestCloneArea(t *testing.T) {
 
 func TestScreenBufferIntegration(t *testing.T) {
 	t.Run("using ScreenBuffer", func(t *testing.T) {
-		scr := uv.NewScreenBuffer(10, 5)
+		scr := gamma.NewScreenBuffer(10, 5)
 
 		// Test Clear
-		scr.SetCell(0, 0, &uv.Cell{Content: "X", Width: 1})
+		scr.SetCell(0, 0, &gamma.Cell{Content: "X", Width: 1})
 		Clear(scr)
 		if cell := scr.CellAt(0, 0); cell != nil && cell.Content != " " {
 			t.Errorf("Clear failed, cell at (0,0) is %v", cell)
 		}
 
 		// Test Fill
-		fillCell := &uv.Cell{Content: "F", Width: 1}
+		fillCell := &gamma.Cell{Content: "F", Width: 1}
 		Fill(scr, fillCell)
 		for y := 0; y < 5; y++ {
 			for x := 0; x < 10; x++ {
@@ -749,7 +749,7 @@ func TestScreenBufferIntegration(t *testing.T) {
 		}
 
 		// Test ClearArea
-		area := uv.Rect(2, 1, 3, 2)
+		area := gamma.Rect(2, 1, 3, 2)
 		ClearArea(scr, area)
 		for y := 1; y < 3; y++ {
 			for x := 2; x < 5; x++ {
@@ -760,8 +760,8 @@ func TestScreenBufferIntegration(t *testing.T) {
 		}
 
 		// Test FillArea
-		fillCell2 := &uv.Cell{Content: "A", Width: 1}
-		area2 := uv.Rect(1, 1, 2, 2)
+		fillCell2 := &gamma.Cell{Content: "A", Width: 1}
+		area2 := gamma.Rect(1, 1, 2, 2)
 		FillArea(scr, fillCell2, area2)
 		for y := 1; y < 3; y++ {
 			for x := 1; x < 3; x++ {
@@ -778,7 +778,7 @@ func TestScreenBufferIntegration(t *testing.T) {
 		}
 
 		// Test CloneArea
-		area3 := uv.Rect(0, 0, 3, 3)
+		area3 := gamma.Rect(0, 0, 3, 3)
 		clonedArea := CloneArea(scr, area3)
 		if clonedArea.Width() != 3 || clonedArea.Height() != 3 {
 			t.Errorf("CloneArea dimensions wrong: %dx%d", clonedArea.Width(), clonedArea.Height())
@@ -792,18 +792,18 @@ func TestEdgeCases(t *testing.T) {
 
 		// These should not panic
 		Clear(scr)
-		Fill(scr, &uv.Cell{Content: "X", Width: 1})
-		ClearArea(scr, uv.Rect(0, 0, 1, 1))
-		FillArea(scr, &uv.Cell{Content: "X", Width: 1}, uv.Rect(0, 0, 1, 1))
+		Fill(scr, &gamma.Cell{Content: "X", Width: 1})
+		ClearArea(scr, gamma.Rect(0, 0, 1, 1))
+		FillArea(scr, &gamma.Cell{Content: "X", Width: 1}, gamma.Rect(0, 0, 1, 1))
 		Clone(scr)
-		CloneArea(scr, uv.Rect(0, 0, 1, 1))
+		CloneArea(scr, gamma.Rect(0, 0, 1, 1))
 	})
 
 	t.Run("wide cells", func(t *testing.T) {
-		scr := uv.NewScreenBuffer(10, 5)
+		scr := gamma.NewScreenBuffer(10, 5)
 
 		// Test with wide cell (e.g., emoji or CJK character)
-		wideCell := &uv.Cell{Content: "😀", Width: 2}
+		wideCell := &gamma.Cell{Content: "😀", Width: 2}
 		scr.SetCell(0, 0, wideCell)
 
 		t.Logf("Set wide cell at (0,0): %+v", scr.CellAt(0, 0))
@@ -816,7 +816,7 @@ func TestEdgeCases(t *testing.T) {
 		}
 
 		// Test FillArea with wide cell
-		FillArea(scr, wideCell, uv.Rect(0, 1, 4, 1))
+		FillArea(scr, wideCell, gamma.Rect(0, 1, 4, 1))
 		for x := 0; x < 4; x += 2 {
 			if cell := scr.CellAt(x, 1); cell == nil || cell.Content != "😀" || cell.Width != 2 {
 				t.Errorf("Wide cell at (%d,1) not filled correctly, got %#v", x, cell)
@@ -825,30 +825,30 @@ func TestEdgeCases(t *testing.T) {
 	})
 
 	t.Run("styled cells", func(t *testing.T) {
-		scr := uv.NewScreenBuffer(10, 5)
+		scr := gamma.NewScreenBuffer(10, 5)
 
 		// Test with styled cell
-		styledCell := &uv.Cell{
+		styledCell := &gamma.Cell{
 			Content: "S",
 			Width:   1,
-			Style:   uv.Style{Attrs: uv.AttrBold | uv.AttrItalic},
+			Style:   gamma.Style{Attrs: gamma.AttrBold | gamma.AttrItalic},
 		}
 		scr.SetCell(0, 0, styledCell)
 
 		cloned := Clone(scr)
-		if cell := cloned.CellAt(0, 0); cell == nil || cell.Content != "S" || (cell.Style.Attrs&uv.AttrBold == 0) || (cell.Style.Attrs&uv.AttrItalic == 0) {
+		if cell := cloned.CellAt(0, 0); cell == nil || cell.Content != "S" || (cell.Style.Attrs&gamma.AttrBold == 0) || (cell.Style.Attrs&gamma.AttrItalic == 0) {
 			t.Errorf("Styled cell not cloned correctly, got %v", cell)
 		}
 	})
 
 	t.Run("cells with links", func(t *testing.T) {
-		scr := uv.NewScreenBuffer(10, 5)
+		scr := gamma.NewScreenBuffer(10, 5)
 
 		// Test with cell containing hyperlink
-		linkedCell := &uv.Cell{
+		linkedCell := &gamma.Cell{
 			Content: "L",
 			Width:   1,
-			Link:    uv.NewLink("https://example.com", "id=test"),
+			Link:    gamma.NewLink("https://example.com", "id=test"),
 		}
 		scr.SetCell(0, 0, linkedCell)
 
@@ -864,7 +864,7 @@ func TestMinimalScreenFallbacks(t *testing.T) {
 		scr := newMinimalMockScreen(5, 3)
 
 		// Set some cells
-		testCell := &uv.Cell{Content: "X", Width: 1}
+		testCell := &gamma.Cell{Content: "X", Width: 1}
 		scr.SetCell(0, 0, testCell)
 		scr.SetCell(2, 1, testCell)
 		scr.SetCell(4, 2, testCell)
@@ -887,7 +887,7 @@ func TestMinimalScreenFallbacks(t *testing.T) {
 		scr := newMinimalMockScreen(5, 3)
 
 		// Set cells across the screen
-		testCell := &uv.Cell{Content: "X", Width: 1}
+		testCell := &gamma.Cell{Content: "X", Width: 1}
 		for y := 0; y < 3; y++ {
 			for x := 0; x < 5; x++ {
 				scr.SetCell(x, y, testCell)
@@ -895,7 +895,7 @@ func TestMinimalScreenFallbacks(t *testing.T) {
 		}
 
 		// ClearArea should use FillArea fallback
-		area := uv.Rect(1, 0, 3, 2)
+		area := gamma.Rect(1, 0, 3, 2)
 		ClearArea(scr, area)
 
 		// Verify only the area is cleared
@@ -920,7 +920,7 @@ func TestMinimalScreenFallbacks(t *testing.T) {
 	t.Run("Fill fallback", func(t *testing.T) {
 		scr := newMinimalMockScreen(5, 3)
 
-		fillCell := &uv.Cell{Content: "F", Width: 1}
+		fillCell := &gamma.Cell{Content: "F", Width: 1}
 		// Fill should use FillArea fallback
 		Fill(scr, fillCell)
 
@@ -938,8 +938,8 @@ func TestMinimalScreenFallbacks(t *testing.T) {
 	t.Run("FillArea fallback loop", func(t *testing.T) {
 		scr := newMinimalMockScreen(5, 3)
 
-		fillCell := &uv.Cell{Content: "A", Width: 1}
-		area := uv.Rect(1, 1, 2, 1)
+		fillCell := &gamma.Cell{Content: "A", Width: 1}
+		area := gamma.Rect(1, 1, 2, 1)
 		// FillArea should use the loop fallback
 		FillArea(scr, fillCell, area)
 
@@ -966,9 +966,9 @@ func TestMinimalScreenFallbacks(t *testing.T) {
 		scr := newMinimalMockScreen(5, 3)
 
 		// Set some cells
-		scr.SetCell(0, 0, &uv.Cell{Content: "A", Width: 1})
-		scr.SetCell(2, 1, &uv.Cell{Content: "B", Width: 1})
-		scr.SetCell(4, 2, &uv.Cell{Content: "C", Width: 1})
+		scr.SetCell(0, 0, &gamma.Cell{Content: "A", Width: 1})
+		scr.SetCell(2, 1, &gamma.Cell{Content: "B", Width: 1})
+		scr.SetCell(4, 2, &gamma.Cell{Content: "C", Width: 1})
 
 		// Clone should use CloneArea fallback
 		cloned := Clone(scr)
@@ -1001,12 +1001,12 @@ func TestMinimalScreenFallbacks(t *testing.T) {
 		for y := 0; y < 3; y++ {
 			for x := 0; x < 5; x++ {
 				content := string(rune('A' + y*5 + x))
-				scr.SetCell(x, y, &uv.Cell{Content: content, Width: 1})
+				scr.SetCell(x, y, &gamma.Cell{Content: content, Width: 1})
 			}
 		}
 
 		// CloneArea should use the loop fallback
-		area := uv.Rect(1, 0, 3, 2)
+		area := gamma.Rect(1, 0, 3, 2)
 		cloned := CloneArea(scr, area)
 
 		if cloned == nil {
@@ -1034,13 +1034,13 @@ func TestMinimalScreenFallbacks(t *testing.T) {
 		scr := newMinimalMockScreen(5, 3)
 
 		// Set some cells but leave some as zero/empty
-		scr.SetCell(1, 0, &uv.Cell{Content: "A", Width: 1})
-		scr.SetCell(3, 1, &uv.Cell{Content: "B", Width: 1})
+		scr.SetCell(1, 0, &gamma.Cell{Content: "A", Width: 1})
+		scr.SetCell(3, 1, &gamma.Cell{Content: "B", Width: 1})
 		// Set a zero cell explicitly
-		scr.SetCell(2, 0, &uv.Cell{})
+		scr.SetCell(2, 0, &gamma.Cell{})
 		// Leave other cells as empty
 
-		area := uv.Rect(0, 0, 5, 2)
+		area := gamma.Rect(0, 0, 5, 2)
 		cloned := CloneArea(scr, area)
 
 		if cloned == nil {
@@ -1071,13 +1071,13 @@ func TestMinimalScreenFallbacks(t *testing.T) {
 		scr := newNilCellMockScreen(5, 3)
 
 		// Set some cells
-		scr.SetCell(1, 0, &uv.Cell{Content: "A", Width: 1})
-		scr.SetCell(3, 1, &uv.Cell{Content: "B", Width: 1})
+		scr.SetCell(1, 0, &gamma.Cell{Content: "A", Width: 1})
+		scr.SetCell(3, 1, &gamma.Cell{Content: "B", Width: 1})
 
 		// Make position (2, 1) return nil
 		scr.SetNilAt(2, 1)
 
-		area := uv.Rect(0, 0, 5, 2)
+		area := gamma.Rect(0, 0, 5, 2)
 		cloned := CloneArea(scr, area)
 
 		if cloned == nil {
@@ -1100,7 +1100,7 @@ func TestMinimalScreenFallbacks(t *testing.T) {
 }
 
 func BenchmarkClear(b *testing.B) {
-	scr := uv.NewScreenBuffer(80, 24)
+	scr := gamma.NewScreenBuffer(80, 24)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		Clear(scr)
@@ -1108,8 +1108,8 @@ func BenchmarkClear(b *testing.B) {
 }
 
 func BenchmarkFill(b *testing.B) {
-	scr := uv.NewScreenBuffer(80, 24)
-	cell := &uv.Cell{Content: "X", Width: 1}
+	scr := gamma.NewScreenBuffer(80, 24)
+	cell := &gamma.Cell{Content: "X", Width: 1}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		Fill(scr, cell)
@@ -1117,11 +1117,11 @@ func BenchmarkFill(b *testing.B) {
 }
 
 func BenchmarkClone(b *testing.B) {
-	scr := uv.NewScreenBuffer(80, 24)
+	scr := gamma.NewScreenBuffer(80, 24)
 	// Fill with some content
 	for y := 0; y < 24; y++ {
 		for x := 0; x < 80; x++ {
-			scr.SetCell(x, y, &uv.Cell{Content: "X", Width: 1})
+			scr.SetCell(x, y, &gamma.Cell{Content: "X", Width: 1})
 		}
 	}
 	b.ResetTimer()
@@ -1131,14 +1131,14 @@ func BenchmarkClone(b *testing.B) {
 }
 
 func BenchmarkCloneArea(b *testing.B) {
-	scr := uv.NewScreenBuffer(80, 24)
+	scr := gamma.NewScreenBuffer(80, 24)
 	// Fill with some content
 	for y := 0; y < 24; y++ {
 		for x := 0; x < 80; x++ {
-			scr.SetCell(x, y, &uv.Cell{Content: "X", Width: 1})
+			scr.SetCell(x, y, &gamma.Cell{Content: "X", Width: 1})
 		}
 	}
-	area := uv.Rect(10, 5, 20, 10)
+	area := gamma.Rect(10, 5, 20, 10)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		CloneArea(scr, area)

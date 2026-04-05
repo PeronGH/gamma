@@ -1,7 +1,7 @@
 //go:build !linux && !windows && !darwin && !freebsd && !netbsd && !openbsd && !dragonfly && !solaris
 // +build !linux,!windows,!darwin,!freebsd,!netbsd,!openbsd,!dragonfly,!solaris
 
-package uv
+package gamma
 
 import "io"
 

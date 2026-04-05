@@ -5,8 +5,8 @@ import (
 	"image/color"
 	"log"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/screen"
 )
 
 var (
@@ -28,7 +28,7 @@ var (
 )
 
 func main() {
-	t := uv.DefaultTerminal()
+	t := gamma.DefaultTerminal()
 	scr := t.Screen()
 
 	if err := t.Start(); err != nil {
@@ -77,17 +77,17 @@ func main() {
 		screen.Clear(scr)
 
 		area := scr.Bounds()
-		topRow := uv.Rect(0, 0, area.Max.X, (area.Max.Y*66)/100)
-		midRow := uv.Rect(0, topRow.Max.Y, area.Max.X, (area.Max.Y*8)/100)
-		botRow := uv.Rect(0, midRow.Max.Y, area.Max.X, (area.Max.Y*26)/100)
+		topRow := gamma.Rect(0, 0, area.Max.X, (area.Max.Y*66)/100)
+		midRow := gamma.Rect(0, topRow.Max.Y, area.Max.X, (area.Max.Y*8)/100)
+		botRow := gamma.Rect(0, midRow.Max.Y, area.Max.X, (area.Max.Y*26)/100)
 
 		barWidth := topRow.Max.X / barCount
-		for i, row := range []uv.Rectangle{
+		for i, row := range []gamma.Rectangle{
 			topRow, midRow,
 		} {
 			for j := 0; j < barCount; j++ {
-				bar := uv.Rect(j*barWidth, row.Min.Y, (j+1)*barWidth, row.Max.Y)
-				cell := uv.EmptyCell
+				bar := gamma.Rect(j*barWidth, row.Min.Y, (j+1)*barWidth, row.Max.Y)
+				cell := gamma.EmptyCell
 				cell.Style.Bg = rowColors[i][j%len(rowColors[i])]
 				screen.FillArea(scr, &cell, bar)
 			}
@@ -95,8 +95,8 @@ func main() {
 
 		botBarWidth := botRow.Max.X / botBarCount
 		for i := 0; i < botBarCount; i++ {
-			bar := uv.Rect(i*botBarWidth, botRow.Min.Y, (i+1)*botBarWidth, botRow.Max.Y)
-			cell := uv.EmptyCell
+			bar := gamma.Rect(i*botBarWidth, botRow.Min.Y, (i+1)*botBarWidth, botRow.Max.Y)
+			cell := gamma.EmptyCell
 			cell.Style.Bg = rowColors[2][i%len(rowColors[2])]
 			screen.FillArea(scr, &cell, bar)
 		}
@@ -105,8 +105,8 @@ func main() {
 		const specialRow = 5
 		subBarWidth := barWidth / 3
 		for i := 0; i < 3; i++ {
-			bar := uv.Rect(specialRow*barWidth+i*subBarWidth, botRow.Min.Y, subBarWidth, botRow.Max.Y)
-			cell := uv.EmptyCell
+			bar := gamma.Rect(specialRow*barWidth+i*subBarWidth, botRow.Min.Y, subBarWidth, botRow.Max.Y)
+			cell := gamma.EmptyCell
 			switch i {
 			case 0:
 				cell.Style.Bg = fullBlack
@@ -132,10 +132,10 @@ LOOP:
 			break LOOP
 		case ev := <-t.Events():
 			switch ev := ev.(type) {
-			case uv.WindowSizeEvent:
+			case gamma.WindowSizeEvent:
 				scr.Resize(ev.Width, ev.Height)
 				display()
-			case uv.KeyPressEvent:
+			case gamma.KeyPressEvent:
 				switch {
 				case ev.MatchString("q", "ctrl+c"):
 					cancel()

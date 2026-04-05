@@ -1,21 +1,21 @@
 package layout
 
-import uv "github.com/PeronGH/ultraviolet"
+import gamma "github.com/PeronGH/gamma"
 
 // Padding defines the inset applied to a [Layout]'s outer area before solving.
 type Padding struct {
 	Top, Right, Bottom, Left int
 }
 
-func (p Padding) apply(area uv.Rectangle) uv.Rectangle {
+func (p Padding) apply(area gamma.Rectangle) gamma.Rectangle {
 	horizontal := p.Right + p.Left
 	vertical := p.Top + p.Bottom
 
 	if area.Dx() < horizontal || area.Dy() < vertical {
-		return uv.Rectangle{}
+		return gamma.Rectangle{}
 	}
 
-	return uv.Rect(
+	return gamma.Rect(
 		area.Min.X+p.Left,
 		area.Min.Y+p.Top,
 		max(0, area.Dx()-horizontal),

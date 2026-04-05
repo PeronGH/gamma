@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"charm.land/lipgloss/v2"
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/screen"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rivo/uniseg"
@@ -327,7 +327,7 @@ func main() {
 		doc.WriteString(statusBarStyle.Width(width).Render(bar))
 	}
 
-	t := uv.DefaultTerminal()
+	t := gamma.DefaultTerminal()
 	scr := t.Screen()
 
 	if err := t.Start(); err != nil {
@@ -354,10 +354,10 @@ func main() {
 
 	display := func() {
 		screen.Clear(scr)
-		mainSs := uv.NewStyledString(mainDoc)
+		mainSs := gamma.NewStyledString(mainDoc)
 		mainSs.Draw(scr, scr.Bounds())
-		boxArea := uv.Rect(dialogX, dialogY, dialogWidth, dialogHeight)
-		box := uv.NewStyledString(dialogBoxStyle.Render(dialogUI))
+		boxArea := gamma.Rect(dialogX, dialogY, dialogWidth, dialogHeight)
+		box := gamma.NewStyledString(dialogBoxStyle.Render(dialogUI))
 		box.Draw(scr, boxArea)
 		scr.Render()
 		scr.Flush()
@@ -376,11 +376,11 @@ LOOP:
 		case ev := <-t.Events():
 			log.Printf("event: %T", ev)
 			switch ev := ev.(type) {
-			case uv.WindowSizeEvent:
+			case gamma.WindowSizeEvent:
 				scr.Resize(ev.Width, ev.Height)
-			case uv.MouseClickEvent:
+			case gamma.MouseClickEvent:
 				dialogX, dialogY = ev.X-dialogWidth/2, ev.Y-dialogHeight/2
-			case uv.KeyPressEvent:
+			case gamma.KeyPressEvent:
 				log.Printf("%T %q %q", ev, ev.String(), ev.Keystroke())
 				switch {
 				case ev.MatchString("ctrl+c", "q"):

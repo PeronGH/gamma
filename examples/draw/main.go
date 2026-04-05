@@ -6,14 +6,14 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/screen"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/mattn/go-runewidth"
 )
 
 func main() {
-	t := uv.DefaultTerminal()
+	t := gamma.DefaultTerminal()
 	scr := t.Screen()
 
 	// Start in altscreen mode
@@ -49,17 +49,17 @@ Press ctrl+h for this help message.
 
 Press any key to continue...`
 
-	helpComp := uv.NewStyledString(help)
+	helpComp := gamma.NewStyledString(help)
 	helpArea := helpComp.Bounds()
 	helpW, helpH := helpArea.Dx(), helpArea.Dy()
 
-	var prevHelpBuf *uv.Buffer
+	var prevHelpBuf *gamma.Buffer
 	showingHelp := true
 	displayHelp := func(show bool) {
 		bounds := scr.Bounds()
 		midX, midY := bounds.Dx()/2, bounds.Dy()/2
 		x, y := midX-helpW/2, midY-helpH/2
-		midArea := uv.Rect(x, y, helpW, helpH)
+		midArea := gamma.Rect(x, y, helpW, helpH)
 		if show {
 			// Save the area under the help to restore it later.
 			prevHelpBuf = screen.CloneArea(scr, midArea)
@@ -82,9 +82,9 @@ Press any key to continue...`
 	displayHelp(showingHelp)
 
 	const defaultChar = "█"
-	pen := uv.EmptyCell
+	pen := gamma.EmptyCell
 	pen.Content = defaultChar
-	draw := func(ev uv.MouseEvent) {
+	draw := func(ev gamma.MouseEvent) {
 		m := ev.Mouse()
 		cur := scr.CellAt(m.X, m.Y)
 		if cur == nil {
@@ -94,7 +94,7 @@ Press any key to continue...`
 
 		if cur.IsZero() && pen.Width == 1 {
 			// Find the previous wide cell.
-			var wide *uv.Cell
+			var wide *gamma.Cell
 			var wideX, wideY int
 			for i := 1; i < 5 && m.X-i >= 0; i++ {
 				wide = scr.CellAt(m.X-i, m.Y)
@@ -146,7 +146,7 @@ LOOP:
 			break LOOP
 		case ev := <-t.Events():
 			switch ev := ev.(type) {
-			case uv.WindowSizeEvent:
+			case gamma.WindowSizeEvent:
 				if showingHelp {
 					displayHelp(false)
 				}
@@ -154,7 +154,7 @@ LOOP:
 				if showingHelp {
 					displayHelp(showingHelp)
 				}
-			case uv.KeyPressEvent:
+			case gamma.KeyPressEvent:
 				if showingHelp {
 					showingHelp = false
 					displayHelp(showingHelp)
@@ -164,7 +164,7 @@ LOOP:
 				case ev.MatchString("ctrl+c"):
 					cancel()
 				case ev.MatchString("alt+esc"):
-					pen.Style = uv.Style{}
+					pen.Style = gamma.Style{}
 					pen.Content = defaultChar
 					fallthrough
 				case ev.MatchString("esc"):
@@ -185,13 +185,13 @@ LOOP:
 					pen.Content = text
 					pen.Width = runewidth.RuneWidth(r)
 				}
-			case uv.MouseClickEvent:
+			case gamma.MouseClickEvent:
 				if showingHelp {
 					break
 				}
 				draw(ev)
-			case uv.MouseMotionEvent:
-				if showingHelp || ev.Button == uv.MouseNone {
+			case gamma.MouseMotionEvent:
+				if showingHelp || ev.Button == gamma.MouseNone {
 					break
 				}
 				draw(ev)

@@ -1,7 +1,7 @@
 //go:build windows
 // +build windows
 
-package uv
+package gamma
 
 import (
 	"context"

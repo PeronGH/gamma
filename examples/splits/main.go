@@ -8,14 +8,14 @@ import (
 	"strings"
 	"time"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/layout"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/layout"
+	"github.com/PeronGH/gamma/screen"
 	"github.com/charmbracelet/x/ansi"
 )
 
 func main() {
-	t := uv.DefaultTerminal()
+	t := gamma.DefaultTerminal()
 	scr := t.Screen()
 	scr.EnterAltScreen()
 
@@ -25,7 +25,7 @@ func main() {
 
 	defer t.Stop()
 
-	var area uv.Rectangle
+	var area gamma.Rectangle
 
 	ticker := time.NewTicker(time.Second / 60)
 	defer ticker.Stop()
@@ -40,12 +40,12 @@ func main() {
 
 		case ev := <-t.Events():
 			switch ev := ev.(type) {
-			case uv.WindowSizeEvent:
+			case gamma.WindowSizeEvent:
 				area = ev.Bounds()
 				scr.Resize(area.Dx(), area.Dy())
 				screen.Clear(scr)
 
-			case uv.KeyPressEvent:
+			case gamma.KeyPressEvent:
 				switch {
 				case ev.MatchString("ctrl+c", "q"):
 					return
@@ -55,8 +55,8 @@ func main() {
 	}
 }
 
-func render(sc uv.Screen, area uv.Rectangle) {
-	var textArea uv.Rectangle
+func render(sc gamma.Screen, area gamma.Rectangle) {
+	var textArea gamma.Rectangle
 
 	layout.Vertical(layout.Len(4), layout.Min(0)).Split(area).Assign(&textArea, &area)
 
@@ -74,7 +74,7 @@ Note: constraint labels that don't fit are truncated`, textArea.Min.X, textArea.
 		layout.Min(0), // fills remaining space
 	).Split(area)
 
-	var areas []uv.Rectangle
+	var areas []gamma.Rectangle
 
 	for _, r := range rows {
 		cols := layout.Horizontal(
@@ -163,8 +163,8 @@ Note: constraint labels that don't fit are truncated`, textArea.Min.X, textArea.
 }
 
 func renderExampleCombinations(
-	sc uv.Screen,
-	area uv.Rectangle,
+	sc gamma.Screen,
+	area gamma.Rectangle,
 	title string,
 	constraints []Pair[layout.Constraint, layout.Constraint],
 ) {
@@ -193,8 +193,8 @@ func renderExampleCombinations(
 	)
 }
 
-func renderExample(sc uv.Screen, area uv.Rectangle, constraints ...layout.Constraint) {
-	var r, g, b uv.Rectangle
+func renderExample(sc gamma.Screen, area gamma.Rectangle, constraints ...layout.Constraint) {
+	var r, g, b gamma.Rectangle
 
 	layout.Horizontal(constraints...).Split(area).Assign(&r, &b, &g)
 
@@ -202,8 +202,8 @@ func renderExample(sc uv.Screen, area uv.Rectangle, constraints ...layout.Constr
 	screen.FillArea(sc, cell(ansi.Green), g)
 	screen.FillArea(sc, cell(ansi.Blue), b)
 
-	draw := func(bg ansi.Color, s string, r uv.Rectangle) {
-		ctx := screen.NewContext(sc).WithStyle(uv.Style{Bg: bg})
+	draw := func(bg ansi.Color, s string, r gamma.Rectangle) {
+		ctx := screen.NewContext(sc).WithStyle(gamma.Style{Bg: bg})
 
 		ctx.DrawString(s[:min(len(s), r.Dx())], r.Min.X, r.Min.Y)
 	}
@@ -238,11 +238,11 @@ func constraintLabel(c layout.Constraint) string {
 	}
 }
 
-func cell(bg ansi.Color) *uv.Cell {
-	return &uv.Cell{
+func cell(bg ansi.Color) *gamma.Cell {
+	return &gamma.Cell{
 		Content: " ",
 		Width:   1,
-		Style: uv.Style{
+		Style: gamma.Style{
 			Bg: bg,
 		},
 	}

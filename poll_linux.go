@@ -1,7 +1,7 @@
 //go:build linux
 // +build linux
 
-package uv
+package gamma
 
 import (
 	"errors"

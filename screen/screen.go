@@ -1,8 +1,8 @@
-// Package screen provides functions and helpers to manipulate a [uv.Screen].
+// Package screen provides functions and helpers to manipulate a [gamma.Screen].
 package screen
 
 import (
-	uv "github.com/PeronGH/ultraviolet"
+	gamma "github.com/PeronGH/gamma"
 )
 
 // Clear clears the screen with empty cells. This is equivalent to filling the
@@ -10,7 +10,7 @@ import (
 //
 // If the screen implements a [Clear] method, it will be called instead of
 // filling the screen with empty cells.
-func Clear(scr uv.Screen) {
+func Clear(scr gamma.Screen) {
 	if c, ok := scr.(interface {
 		Clear()
 	}); ok {
@@ -25,9 +25,9 @@ func Clear(scr uv.Screen) {
 //
 // If the screen implements a [ClearArea] method, it will be called instead of
 // filling the area with empty cells.
-func ClearArea(scr uv.Screen, area uv.Rectangle) {
+func ClearArea(scr gamma.Screen, area gamma.Rectangle) {
 	if c, ok := scr.(interface {
-		ClearArea(area uv.Rectangle)
+		ClearArea(area gamma.Rectangle)
 	}); ok {
 		c.ClearArea(area)
 		return
@@ -40,9 +40,9 @@ func ClearArea(scr uv.Screen, area uv.Rectangle) {
 //
 // If the screen implements a [Fill] method, it will be called instead of
 // filling the screen with empty cells.
-func Fill(scr uv.Screen, cell *uv.Cell) {
+func Fill(scr gamma.Screen, cell *gamma.Cell) {
 	if f, ok := scr.(interface {
-		Fill(cell *uv.Cell)
+		Fill(cell *gamma.Cell)
 	}); ok {
 		f.Fill(cell)
 		return
@@ -55,9 +55,9 @@ func Fill(scr uv.Screen, cell *uv.Cell) {
 //
 // If the screen implements a [FillArea] method, it will be called instead of
 // filling the area with empty cells.
-func FillArea(scr uv.Screen, cell *uv.Cell, area uv.Rectangle) {
+func FillArea(scr gamma.Screen, cell *gamma.Cell, area gamma.Rectangle) {
 	if f, ok := scr.(interface {
-		FillArea(cell *uv.Cell, area uv.Rectangle)
+		FillArea(cell *gamma.Cell, area gamma.Rectangle)
 	}); ok {
 		f.FillArea(cell, area)
 		return
@@ -76,17 +76,17 @@ func FillArea(scr uv.Screen, cell *uv.Cell, area uv.Rectangle) {
 // CloneArea clones the given area of the screen and returns a new buffer
 // with the same size as the area. The new buffer will contain the same cells
 // as the area in the screen.
-// Use [uv.Buffer.Draw] to draw the cloned buffer to a screen again.
+// Use [gamma.Buffer.Draw] to draw the cloned buffer to a screen again.
 //
 // If the screen implements a [CloneArea] method, it will be called instead of
 // cloning the area manually.
-func CloneArea(scr uv.Screen, area uv.Rectangle) *uv.Buffer {
+func CloneArea(scr gamma.Screen, area gamma.Rectangle) *gamma.Buffer {
 	if c, ok := scr.(interface {
-		CloneArea(area uv.Rectangle) *uv.Buffer
+		CloneArea(area gamma.Rectangle) *gamma.Buffer
 	}); ok {
 		return c.CloneArea(area)
 	}
-	buf := uv.NewBuffer(area.Dx(), area.Dy())
+	buf := gamma.NewBuffer(area.Dx(), area.Dy())
 	for y := area.Min.Y; y < area.Max.Y; y++ {
 		for x := area.Min.X; x < area.Max.X; {
 			cell := scr.CellAt(x, y)
@@ -101,15 +101,15 @@ func CloneArea(scr uv.Screen, area uv.Rectangle) *uv.Buffer {
 	return buf
 }
 
-// Clone creates a new [uv.Buffer] clone of the given screen. The new buffer will
+// Clone creates a new [gamma.Buffer] clone of the given screen. The new buffer will
 // have the same size as the screen and will contain the same cells.
-// Use [uv.Buffer.Draw] to draw the cloned buffer to a screen again.
+// Use [gamma.Buffer.Draw] to draw the cloned buffer to a screen again.
 //
 // If the screen implements a [Clone] method, it will be called instead of
 // cloning the entire screen manually.
-func Clone(scr uv.Screen) *uv.Buffer {
+func Clone(scr gamma.Screen) *gamma.Buffer {
 	if c, ok := scr.(interface {
-		Clone() *uv.Buffer
+		Clone() *gamma.Buffer
 	}); ok {
 		return c.Clone()
 	}

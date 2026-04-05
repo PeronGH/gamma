@@ -13,7 +13,7 @@
 // relaxes lower-priority ones first.
 //
 // You are not required to use [Layout] at all. If you prefer manual control,
-// you can compute [uv.Rectangle] values yourself with plain arithmetic.
+// you can compute [gamma.Rectangle] values yourself with plain arithmetic.
 //
 // # Acknowledgements
 //
@@ -29,8 +29,8 @@ import (
 	"hash/fnv"
 	"math"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/internal/casso"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/internal/casso"
 )
 
 // floatPrecisionMultiplier scales cell positions into a higher-precision
@@ -135,7 +135,7 @@ const (
 )
 
 // Splitted holds the rectangles produced by a [Layout.Split] call.
-type Splitted []uv.Rectangle
+type Splitted []gamma.Rectangle
 
 // Assign stores each resulting rectangle into the corresponding pointer.
 //
@@ -145,12 +145,12 @@ type Splitted []uv.Rectangle
 //
 // # Examples
 //
-//	var top, bottom uv.Rectangle
+//	var top, bottom gamma.Rectangle
 //
 //	layout.New(layout.Fill(1), layout.Len(1)).
 //		Split(area).
 //	    Assign(&top, &bottom)
-func (s Splitted) Assign(areas ...*uv.Rectangle) {
+func (s Splitted) Assign(areas ...*gamma.Rectangle) {
 	for i := range areas {
 		if areas[i] != nil {
 			*areas[i] = s[i]
@@ -248,7 +248,7 @@ func (l Layout) WithConstraints(constraints ...Constraint) Layout {
 // SplitWithSpacers divides the given area into content segments and the
 // gaps (spacers) between them. It returns both slices; use [Layout.Split]
 // if you only need the content rectangles.
-func (l Layout) SplitWithSpacers(area uv.Rectangle) (segments, spacers Splitted) {
+func (l Layout) SplitWithSpacers(area gamma.Rectangle) (segments, spacers Splitted) {
 	segments, spacers, err := l.splitCached(area)
 	if err != nil {
 		panic(err)
@@ -264,13 +264,13 @@ func (l Layout) SplitWithSpacers(area uv.Rectangle) (segments, spacers Splitted)
 // relative constraints (Percent, Ratio) with absolute ones (Min, Max, Len)
 // can produce ambiguous results. For example, splitting 100 cells as
 // [Min(20), Percent(50), Percent(50)] will not necessarily yield [20, 40, 40].
-func (l Layout) Split(area uv.Rectangle) Splitted {
+func (l Layout) Split(area gamma.Rectangle) Splitted {
 	segments, _ := l.SplitWithSpacers(area)
 
 	return segments
 }
 
-func (l Layout) splitCached(area uv.Rectangle) (segments, spacers []uv.Rectangle, err error) {
+func (l Layout) splitCached(area gamma.Rectangle) (segments, spacers []gamma.Rectangle, err error) {
 	globalCacheMu.Lock()
 	defer globalCacheMu.Unlock()
 
@@ -290,7 +290,7 @@ func (l Layout) splitCached(area uv.Rectangle) (segments, spacers []uv.Rectangle
 	return segments, spacers, nil
 }
 
-func (l Layout) split(area uv.Rectangle) (segments, spacers []uv.Rectangle, err error) {
+func (l Layout) split(area gamma.Rectangle) (segments, spacers []gamma.Rectangle, err error) {
 	s := casso.NewSolver()
 
 	innerArea := l.Padding.apply(area)
@@ -388,7 +388,7 @@ func (l Layout) split(area uv.Rectangle) (segments, spacers []uv.Rectangle, err 
 	return segments, spacers, nil
 }
 
-func (l Layout) cacheKey(area uv.Rectangle) cacheKey {
+func (l Layout) cacheKey(area gamma.Rectangle) cacheKey {
 	h := fnv.New64a()
 
 	for _, c := range l.Constraints {
@@ -408,10 +408,10 @@ func (l Layout) cacheKey(area uv.Rectangle) cacheKey {
 func changesToRects(
 	changes map[casso.Symbol]float64,
 	elements []element,
-	area uv.Rectangle,
+	area gamma.Rectangle,
 	direction Direction,
-) []uv.Rectangle {
-	var rects []uv.Rectangle
+) []gamma.Rectangle {
+	var rects []gamma.Rectangle
 
 	for _, e := range elements {
 		startVal := changes[e.start]
@@ -424,12 +424,12 @@ func changesToRects(
 
 		switch direction {
 		case DirectionHorizontal:
-			rect := uv.Rect(startRounded, area.Min.Y, size, area.Dy())
+			rect := gamma.Rect(startRounded, area.Min.Y, size, area.Dy())
 
 			rects = append(rects, rect)
 
 		case DirectionVertical:
-			rect := uv.Rect(area.Min.X, startRounded, area.Dx(), size)
+			rect := gamma.Rect(area.Min.X, startRounded, area.Dx(), size)
 
 			rects = append(rects, rect)
 		}

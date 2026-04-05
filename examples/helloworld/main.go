@@ -3,21 +3,21 @@ package main
 import (
 	"log"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/screen"
 	"github.com/charmbracelet/x/ansi"
 )
 
 func main() {
 	// Create a new terminal screen
-	t := uv.DefaultTerminal()
+	t := gamma.DefaultTerminal()
 
 	if err := run(t); err != nil {
 		log.Fatalf("error: %v", err)
 	}
 }
 
-func run(t *uv.Terminal) error {
+func run(t *gamma.Terminal) error {
 	scr := t.Screen()
 
 	// Start in alternate screen mode
@@ -60,7 +60,7 @@ func run(t *uv.Terminal) error {
 	var physicalWidth, physicalHeight int
 	for ev := range t.Events() {
 		switch ev := ev.(type) {
-		case uv.WindowSizeEvent:
+		case gamma.WindowSizeEvent:
 			physicalWidth = ev.Width
 			physicalHeight = ev.Height
 			if scr.AltScreen() {
@@ -69,7 +69,7 @@ func run(t *uv.Terminal) error {
 				scr.Resize(physicalWidth, len(view))
 			}
 			display()
-		case uv.KeyPressEvent:
+		case gamma.KeyPressEvent:
 			switch {
 			case ev.MatchString("space"):
 				if scr.AltScreen() {
@@ -83,7 +83,7 @@ func run(t *uv.Terminal) error {
 			case ev.MatchString("ctrl+z"):
 				_ = t.Stop()
 
-				uv.Suspend()
+				gamma.Suspend()
 
 				_ = t.Start()
 			default:

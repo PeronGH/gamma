@@ -4,12 +4,12 @@ import (
 	"log"
 	"strings"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/screen"
 )
 
 func main() {
-	t := uv.DefaultTerminal()
+	t := gamma.DefaultTerminal()
 	scr := t.Screen()
 
 	if err := t.Start(); err != nil {
@@ -43,7 +43,7 @@ func main() {
 	var physicalWidth, physicalHeight int
 	for ev := range t.Events() {
 		switch ev := ev.(type) {
-		case uv.WindowSizeEvent:
+		case gamma.WindowSizeEvent:
 			physicalWidth = ev.Width
 			physicalHeight = ev.Height
 			if altScreen {
@@ -52,7 +52,7 @@ func main() {
 				scr.Resize(physicalWidth, 2)
 			}
 			display()
-		case uv.KeyPressEvent:
+		case gamma.KeyPressEvent:
 			switch {
 			case ev.MatchString("space"):
 				if altScreen {

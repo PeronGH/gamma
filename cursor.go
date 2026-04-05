@@ -1,4 +1,4 @@
-package uv
+package gamma
 
 // CursorShape represents a terminal cursor shape.
 type CursorShape int

@@ -8,8 +8,8 @@ import (
 	"math/rand"
 	"time"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/screen"
 )
 
 func setupColors(width, height int) [][]color.Color {
@@ -48,7 +48,7 @@ func clamp(value, min, max float64) float64 {
 type tickEvent struct{}
 
 func main() {
-	t := uv.DefaultTerminal()
+	t := gamma.DefaultTerminal()
 	scr := t.Screen()
 	scr.EnterAltScreen()
 
@@ -76,14 +76,14 @@ LOOP:
 			break LOOP
 		case ev := <-t.Events():
 			switch ev := ev.(type) {
-			case uv.KeyPressEvent:
+			case gamma.KeyPressEvent:
 				switch ev.String() {
 				case "q", "ctrl+c":
 					cancel()
 					break LOOP
 				}
 
-			case uv.WindowSizeEvent:
+			case gamma.WindowSizeEvent:
 				width, height := ev.Width, ev.Height
 				colors = setupColors(width, height)
 				scr.Resize(width, height)
@@ -103,8 +103,8 @@ LOOP:
 				bounds := scr.Bounds()
 
 				// Title
-				uv.NewStyledString(fmt.Sprintf("\x1b[1mSpace / FPS: %.1f\x1b[m", fps)).
-					Draw(scr, uv.Rect(0, 0, bounds.Dx(), 1))
+				gamma.NewStyledString(fmt.Sprintf("\x1b[1mSpace / FPS: %.1f\x1b[m", fps)).
+					Draw(scr, gamma.Rect(0, 0, bounds.Dx(), 1))
 
 				// Color display
 				width, height := bounds.Dx(), bounds.Dy()
@@ -113,11 +113,11 @@ LOOP:
 						xi := (x + frameCount) % width
 						fg := colors[y*2][xi]
 						bg := colors[y*2+1][xi]
-						st := uv.Style{
+						st := gamma.Style{
 							Fg: fg,
 							Bg: bg,
 						}
-						scr.SetCell(x, y, &uv.Cell{
+						scr.SetCell(x, y, &gamma.Cell{
 							Content: "▀",
 							Style:   st,
 							Width:   1,

@@ -3,8 +3,8 @@ package layout
 import (
 	"sync"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/internal/lru"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/internal/lru"
 )
 
 // globalCacheSize is chosen to comfortably hold one entry per row and column
@@ -18,7 +18,7 @@ var (
 )
 
 type cacheKey struct {
-	Area            uv.Rectangle
+	Area            gamma.Rectangle
 	Direction       Direction
 	ConstraintsHash uint64
 	Padding         Padding

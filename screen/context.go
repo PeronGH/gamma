@@ -5,21 +5,21 @@ import (
 	"image/color"
 	"strings"
 
-	uv "github.com/PeronGH/ultraviolet"
+	gamma "github.com/PeronGH/gamma"
 	"github.com/clipperhouse/uax29/v2/graphemes"
 )
 
 // Context represents a drawing context for rendering operations on a screen.
 type Context struct {
-	scr uv.Screen
+	scr gamma.Screen
 
-	style uv.Style
-	link  uv.Link
-	pos   uv.Position
+	style gamma.Style
+	link  gamma.Link
+	pos   gamma.Position
 }
 
 // NewContext creates a new drawing context for the given screen.
-func NewContext(scr uv.Screen) *Context {
+func NewContext(scr gamma.Screen) *Context {
 	c := &Context{scr: scr}
 	c.Reset()
 	return c
@@ -27,29 +27,29 @@ func NewContext(scr uv.Screen) *Context {
 
 // Reset resets the context to its default state.
 func (c *Context) Reset() {
-	c.style = uv.Style{}
-	c.link = uv.Link{}
-	c.pos = uv.Position{X: 0, Y: 0}
+	c.style = gamma.Style{}
+	c.link = gamma.Link{}
+	c.pos = gamma.Position{X: 0, Y: 0}
 }
 
 // SetStyle sets the style of the context.
-func (c *Context) SetStyle(style uv.Style) {
+func (c *Context) SetStyle(style gamma.Style) {
 	c.style = style
 }
 
 // WithStyle returns a copy of the context with the given style.
-func (c Context) WithStyle(style uv.Style) Context {
+func (c Context) WithStyle(style gamma.Style) Context {
 	c.SetStyle(style)
 	return c
 }
 
 // SetLink sets the link of the context.
-func (c *Context) SetLink(link uv.Link) {
+func (c *Context) SetLink(link gamma.Link) {
 	c.link = link
 }
 
 // WithLink returns a copy of the context with the given link.
-func (c Context) WithLink(link uv.Link) Context {
+func (c Context) WithLink(link gamma.Link) Context {
 	c.SetLink(link)
 	return c
 }
@@ -90,9 +90,9 @@ func (c Context) WithForeground(fg color.Color) Context {
 // SetBold sets whether the text in the context should be bold.
 func (c *Context) SetBold(bold bool) {
 	if bold {
-		c.style.Attrs |= uv.AttrBold
+		c.style.Attrs |= gamma.AttrBold
 	} else {
-		c.style.Attrs &^= uv.AttrBold
+		c.style.Attrs &^= gamma.AttrBold
 	}
 }
 
@@ -105,9 +105,9 @@ func (c Context) WithBold(bold bool) Context {
 // SetItalic sets whether the text in the context should be italic.
 func (c *Context) SetItalic(italic bool) {
 	if italic {
-		c.style.Attrs |= uv.AttrItalic
+		c.style.Attrs |= gamma.AttrItalic
 	} else {
-		c.style.Attrs &^= uv.AttrItalic
+		c.style.Attrs &^= gamma.AttrItalic
 	}
 }
 
@@ -120,9 +120,9 @@ func (c Context) WithItalic(italic bool) Context {
 // SetStrikethrough sets whether the text in the context should be strikethrough.
 func (c *Context) SetStrikethrough(strikethrough bool) {
 	if strikethrough {
-		c.style.Attrs |= uv.AttrStrikethrough
+		c.style.Attrs |= gamma.AttrStrikethrough
 	} else {
-		c.style.Attrs &^= uv.AttrStrikethrough
+		c.style.Attrs &^= gamma.AttrStrikethrough
 	}
 }
 
@@ -136,9 +136,9 @@ func (c Context) WithStrikethrough(strikethrough bool) Context {
 // SetFaint sets whether the text in the context should be faint.
 func (c *Context) SetFaint(faint bool) {
 	if faint {
-		c.style.Attrs |= uv.AttrFaint
+		c.style.Attrs |= gamma.AttrFaint
 	} else {
-		c.style.Attrs &^= uv.AttrFaint
+		c.style.Attrs &^= gamma.AttrFaint
 	}
 }
 
@@ -151,9 +151,9 @@ func (c Context) WithFaint(faint bool) Context {
 // SetBlink sets whether the text in the context should blink.
 func (c *Context) SetBlink(blink bool) {
 	if blink {
-		c.style.Attrs |= uv.AttrBlink
+		c.style.Attrs |= gamma.AttrBlink
 	} else {
-		c.style.Attrs &^= uv.AttrBlink
+		c.style.Attrs &^= gamma.AttrBlink
 	}
 }
 
@@ -166,9 +166,9 @@ func (c Context) WithBlink(blink bool) Context {
 // SetReverse sets whether the text in the context should be reversed.
 func (c *Context) SetReverse(reverse bool) {
 	if reverse {
-		c.style.Attrs |= uv.AttrReverse
+		c.style.Attrs |= gamma.AttrReverse
 	} else {
-		c.style.Attrs &^= uv.AttrReverse
+		c.style.Attrs &^= gamma.AttrReverse
 	}
 }
 
@@ -181,9 +181,9 @@ func (c Context) WithReverse(reverse bool) Context {
 // SetConceal sets whether the text in the context should be concealed.
 func (c *Context) SetConceal(conceal bool) {
 	if conceal {
-		c.style.Attrs |= uv.AttrConceal
+		c.style.Attrs |= gamma.AttrConceal
 	} else {
-		c.style.Attrs &^= uv.AttrConceal
+		c.style.Attrs &^= gamma.AttrConceal
 	}
 }
 
@@ -194,12 +194,12 @@ func (c Context) WithConceal(conceal bool) Context {
 }
 
 // SetUnderlineStyle sets the underline style of the context.
-func (c *Context) SetUnderlineStyle(u uv.Underline) {
+func (c *Context) SetUnderlineStyle(u gamma.Underline) {
 	c.style.Underline = u
 }
 
 // WithUnderlineStyle returns a copy of the context with the given underline style.
-func (c Context) WithUnderlineStyle(u uv.Underline) Context {
+func (c Context) WithUnderlineStyle(u gamma.Underline) Context {
 	c.SetUnderlineStyle(u)
 	return c
 }
@@ -208,12 +208,12 @@ func (c Context) WithUnderlineStyle(u uv.Underline) Context {
 //
 // This is a convenience method that sets the underline style to single or
 // none. It is equivalent to calling [Context.SetUnderlineStyle] with
-// [uv.UnderlineSingle] or [uv.UnderlineNone].
+// [gamma.UnderlineSingle] or [gamma.UnderlineNone].
 func (c *Context) SetUnderline(underline bool) {
 	if underline {
-		c.SetUnderlineStyle(uv.UnderlineSingle)
+		c.SetUnderlineStyle(gamma.UnderlineSingle)
 	} else {
-		c.SetUnderlineStyle(uv.UnderlineNone)
+		c.SetUnderlineStyle(gamma.UnderlineNone)
 	}
 }
 
@@ -238,10 +238,10 @@ func (c Context) WithUnderlineColor(color color.Color) Context {
 // SetURL sets the URL link for the context. Use an empty string to reset.
 func (c *Context) SetURL(url string, params ...string) {
 	if url == "" {
-		c.link = uv.Link{}
+		c.link = gamma.Link{}
 		return
 	}
-	c.link = uv.Link{
+	c.link = gamma.Link{
 		URL:    url,
 		Params: strings.Join(params, ":"),
 	}
@@ -325,13 +325,13 @@ func (c *Context) WriteString(s string) (n int, err error) {
 	return len(s), nil
 }
 
-func drawStringAt[T []byte | string](scr uv.Screen, grs *graphemes.Iterator[T], x, y int, style uv.Style, link uv.Link, wrap bool) (int, int) {
+func drawStringAt[T []byte | string](scr gamma.Screen, grs *graphemes.Iterator[T], x, y int, style gamma.Style, link gamma.Link, wrap bool) (int, int) {
 	bounds := scr.Bounds()
 	bounds.Max.X -= bounds.Min.X
 	bounds.Max.Y -= bounds.Min.Y
 	bounds.Min.X = 0
 	bounds.Min.Y = 0
-	pos := uv.Pos(x, y)
+	pos := gamma.Pos(x, y)
 	if !pos.In(bounds) {
 		return x, y
 	}
@@ -347,12 +347,12 @@ func drawStringAt[T []byte | string](scr uv.Screen, grs *graphemes.Iterator[T], 
 		}
 
 		w := wm.StringWidth(gr)
-		pos := uv.Pos(x, y)
+		pos := gamma.Pos(x, y)
 		if x+w > bounds.Max.X {
 			if wrap {
 				x = bounds.Min.X
 				y++
-				pos = uv.Pos(x, y)
+				pos = gamma.Pos(x, y)
 			} else {
 				break
 			}
@@ -361,7 +361,7 @@ func drawStringAt[T []byte | string](scr uv.Screen, grs *graphemes.Iterator[T], 
 			break
 		}
 
-		scr.SetCell(x, y, &uv.Cell{
+		scr.SetCell(x, y, &gamma.Cell{
 			Content: gr,
 			Width:   w,
 			Style:   style,

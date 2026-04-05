@@ -9,8 +9,8 @@ import (
 	"slices"
 	"sync"
 
-	uv "github.com/PeronGH/ultraviolet"
-	"github.com/PeronGH/ultraviolet/screen"
+	gamma "github.com/PeronGH/gamma"
+	"github.com/PeronGH/gamma/screen"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/term"
 )
@@ -20,19 +20,19 @@ const rootID = "root"
 // AppWindow represents a window in the application.
 type AppWindow struct {
 	id  string
-	win *uv.Window
+	win *gamma.Window
 	ctx *screen.Context
 	z   int
-	st  uv.Style
+	st  gamma.Style
 }
 
 // Bounds returns the bounds of the window.
-func (aw *AppWindow) Bounds() uv.Rectangle {
+func (aw *AppWindow) Bounds() gamma.Rectangle {
 	return aw.win.Bounds()
 }
 
 // Draw draws the window onto the given target window at the specified position.
-func (aw *AppWindow) Draw(scr uv.Screen, rect uv.Rectangle) {
+func (aw *AppWindow) Draw(scr gamma.Screen, rect gamma.Rectangle) {
 	aw.win.Draw(scr, rect)
 }
 
@@ -47,7 +47,7 @@ func (aw *AppWindow) Context() *screen.Context {
 }
 
 type App struct {
-	scr         *uv.Window
+	scr         *gamma.Window
 	root        *AppWindow
 	wins        map[string]*AppWindow
 	zwins       []*AppWindow
@@ -61,13 +61,13 @@ type App struct {
 // EventHandler represents an event handler function. It receives the focused
 // window and the event as parameters. It returns true if the event was
 // handled, false otherwise.
-type EventHandler func(win *uv.Window, ev uv.Event) bool
+type EventHandler func(win *gamma.Window, ev gamma.Event) bool
 
 // NewApp creates a new [App] instance.
 func NewApp(width, height int) *App {
 	a := new(App)
 	a.active = rootID
-	a.scr = uv.NewScreen(width, height)
+	a.scr = gamma.NewScreen(width, height)
 	a.scr.SetWidthMethod(ansi.GraphemeWidth)
 	root := &AppWindow{
 		id:  rootID,
@@ -110,11 +110,11 @@ func (a *App) CreateWindow(id string, x, y, width, height int) *AppWindow {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 
-	var style uv.Style
+	var style gamma.Style
 	style.Bg = ansi.IndexedColor(rand.Intn(256))
 
 	win := a.root.win.NewWindow(x, y, width, height)
-	win.Fill(&uv.Cell{
+	win.Fill(&gamma.Cell{
 		Content: " ",
 		Width:   1,
 		Style:   style,
@@ -167,7 +167,7 @@ func (a *App) ActiveID() string {
 
 // Window returns the window associated with the given id. If no window is
 // found, it returns nil.
-func (a *App) Window(id string) *uv.Window {
+func (a *App) Window(id string) *gamma.Window {
 	a.mtx.RLock()
 	defer a.mtx.RUnlock()
 	if win, ok := a.wins[id]; ok {
@@ -198,7 +198,7 @@ func (a *App) ParentID(id string) string {
 }
 
 // Draw draws the applications windows to the root window.
-func (a *App) Draw(scr uv.Screen, area uv.Rectangle) {
+func (a *App) Draw(scr gamma.Screen, area gamma.Rectangle) {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 
@@ -224,14 +224,14 @@ func (a *App) Draw(scr uv.Screen, area uv.Rectangle) {
 }
 
 // HandleEvent implements an [EventHandler] for the application.
-func (a *App) HandleEvent(id string, ev uv.Event) bool {
+func (a *App) HandleEvent(id string, ev gamma.Event) bool {
 	win := a.Window(id)
 	if win == nil {
 		return false
 	}
 
 	switch ev := ev.(type) {
-	case uv.KeyPressEvent:
+	case gamma.KeyPressEvent:
 		switch {
 		case ev.MatchString("ctrl+c", "esc"):
 			a.quit = true
@@ -270,7 +270,7 @@ func (a *App) HandleEvent(id string, ev uv.Event) bool {
 				return true
 			}
 		}
-	case uv.MouseMotionEvent:
+	case gamma.MouseMotionEvent:
 		if a.mouseDown && a.lastClicked == id {
 			// Move the window.
 			bounds := win.Bounds()
@@ -280,20 +280,20 @@ func (a *App) HandleEvent(id string, ev uv.Event) bool {
 			win.MoveTo(newX, newY)
 			return true
 		}
-	case uv.MouseReleaseEvent:
+	case gamma.MouseReleaseEvent:
 		a.mouseDown = false
 		a.lastClicked = ""
 		return true
-	case uv.MouseClickEvent:
+	case gamma.MouseClickEvent:
 		a.mouseDown = true
 
 		switch ev.Button {
-		case uv.MouseLeft:
+		case gamma.MouseLeft:
 			log.Printf("mouse left click for %q at (%d, %d)", id, ev.X, ev.Y)
 
 			for i := len(a.zwins) - 1; i >= 0; i-- {
 				zw := a.zwins[i]
-				pos := uv.Pos(ev.X, ev.Y)
+				pos := gamma.Pos(ev.X, ev.Y)
 				bounds := zw.win.Bounds()
 				if zw.id != rootID && pos.In(bounds) {
 					log.Printf("clicked window %s at %v (bounds: %v)", zw.id, pos, bounds)
@@ -340,11 +340,11 @@ func (a *App) HandleEvent(id string, ev uv.Event) bool {
 				return true
 			}
 
-		case uv.MouseRight:
+		case gamma.MouseRight:
 			// Destroy the clicked window.
 			for i := len(a.zwins) - 1; i >= 0; i-- {
 				zw := a.zwins[i]
-				pos := uv.Pos(ev.X, ev.Y)
+				pos := gamma.Pos(ev.X, ev.Y)
 				if pos.In(zw.win.Bounds()) && zw.id != rootID {
 					log.Printf("right-clicked window %q at (%d, %d), destroying", zw.id, ev.X, ev.Y)
 					a.DestroyWindow(zw.id)
@@ -367,8 +367,8 @@ func (a *App) Resize(width, height int) error {
 }
 
 // Run starts the application event loop on the given terminal.
-func (a *App) Run(input uv.File, output uv.File, environ []string) error {
-	term := uv.NewTerminal(uv.NewConsole(input, output, environ), nil)
+func (a *App) Run(input gamma.File, output gamma.File, environ []string) error {
+	term := gamma.NewTerminal(gamma.NewConsole(input, output, environ), nil)
 	// We're using the alternate screen buffer, we need to ensure we're using
 	// the fullscreen and absolute cursor movement flags.
 	scr := term.Screen()
@@ -381,7 +381,7 @@ func (a *App) Run(input uv.File, output uv.File, environ []string) error {
 
 	defer term.Stop()
 
-	scr.SetMouseMode(uv.MouseModeDrag)
+	scr.SetMouseMode(gamma.MouseModeDrag)
 
 	for !a.quit {
 		select {
@@ -389,7 +389,7 @@ func (a *App) Run(input uv.File, output uv.File, environ []string) error {
 			log.Printf("event: %#v", ev)
 
 			switch ev := ev.(type) {
-			case uv.WindowSizeEvent:
+			case gamma.WindowSizeEvent:
 				// We need to update our terminal size and root window size.
 				scr.Resize(ev.Width, ev.Height)
 				a.root.Resize(ev.Width, ev.Height)
@@ -420,7 +420,7 @@ func (a *App) Run(input uv.File, output uv.File, environ []string) error {
 }
 
 func init() {
-	f, err := os.OpenFile("uv.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	f, err := os.OpenFile("gamma.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
 	if err != nil {
 		log.Fatalf("failed to open log file: %v", err)
 	}

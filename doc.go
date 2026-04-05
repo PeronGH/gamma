@@ -1,3 +1,3 @@
-// Package uv (Ultraviolet) is a library for creating terminal-based user
-// interfaces in Go.
-package uv
+// Package gamma provides primitives for manipulating terminal emulators,
+// with a focus on terminal user interfaces (TUIs).
+package gamma

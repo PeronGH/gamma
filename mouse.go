@@ -1,4 +1,4 @@
-package uv
+package gamma
 
 import (
 	"github.com/charmbracelet/x/ansi"

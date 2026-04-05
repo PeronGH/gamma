@@ -1,4 +1,4 @@
-package uv
+package gamma
 
 // NormalBorder returns a standard-type border with a normal weight and 90
 // degree corners.

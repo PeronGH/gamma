@@ -1,7 +1,7 @@
 //go:build !windows
 // +build !windows
 
-package uv
+package gamma
 
 func newConsole(in File, out File, env Environ) *TTY {
 	c := &console{

@@ -15,9 +15,9 @@ First, we need to create a screen that will display our program. UV comes with
 a `Terminal` screen that is used to display content on a terminal.
 
 ```go
-t := uv.NewTerminal(os.Stdin, os.Stdout, os.Environ())
+t := gamma.NewTerminal(os.Stdin, os.Stdout, os.Environ())
 // Or simply use...
-// t := uv.DefaultTerminal()
+// t := gamma.DefaultTerminal()
 ```
 
 A terminal screen has a few properties that are unique to it. For example, a
@@ -85,7 +85,7 @@ for i, r := range "Hello, World!" {
   // to have exactly one grapheme. In this case, since
   // we're using a simple ASCII string, we know that
   // each character is a single grapheme with a width of 1.
-  var c uv.Cell
+  var c gamma.Cell
   c.Content = string(r)
   c.Width = 1
   t.SetCell(i, 0, &c)
@@ -109,7 +109,7 @@ defer cancel()
 
 for ev := range t.Events(ctx) {
   switch ev := ev.(type) {
-  case uv.WindowSizeEvent:
+  case gamma.WindowSizeEvent:
     // Our terminal screen is resizable. This is important
     // as we want to inform our terminal screen with the
     // size we'd like to display our program in.
@@ -126,7 +126,7 @@ for ev := range t.Events(ctx) {
       height = 10
     }
     t.Resize(width, height)
-  case uv.KeyPressEvent:
+  case gamma.KeyPressEvent:
     if ev.MatchStrings("q", "ctrl+c") {
       // This will stop the input loop and cancel the context.
       cancel()
@@ -154,7 +154,7 @@ a frame with "Hello, World!" in it. The program will exit when we press
 
 ```go
 func main() {
-	t := uv.NewTerminal(os.Stdin, os.Stdout, os.Environ())
+	t := gamma.NewTerminal(os.Stdin, os.Stdout, os.Environ())
 
 	if err := t.MakeRaw(); err != nil {
 		log.Fatalf("failed to make terminal raw: %v", err)
@@ -171,18 +171,18 @@ func main() {
 
 	for ev := range t.Events(ctx) {
 		switch ev := ev.(type) {
-		case uv.WindowSizeEvent:
+		case gamma.WindowSizeEvent:
 			width, height := ev.Width, ev.Height
 			t.Erase()
 			t.Resize(width, height)
-		case uv.KeyPressEvent:
+		case gamma.KeyPressEvent:
 			if ev.MatchStrings("q", "ctrl+c") {
 				cancel()
 			}
 		}
 
 		for i, r := range "Hello, World!" {
-			var c uv.Cell
+			var c gamma.Cell
 			c.Content = string(r)
 			c.Width = 1
 			t.SetCell(i, 0, &c)
