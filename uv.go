@@ -357,3 +357,21 @@ func EncodeWindowTitle(w io.Writer, title string) error {
 	}
 	return nil
 }
+
+// EncodeClipboard encodes a clipboard write (OSC 52) to the given writer.
+func EncodeClipboard(w io.Writer, selection ClipboardSelection, content string) error {
+	_, err := io.WriteString(w, ansi.SetClipboard(selection, content))
+	if err != nil {
+		return fmt.Errorf("failed to set clipboard: %w", err)
+	}
+	return nil
+}
+
+// EncodeResetClipboard encodes a clipboard reset (OSC 52) to the given writer.
+func EncodeResetClipboard(w io.Writer, selection ClipboardSelection) error {
+	_, err := io.WriteString(w, ansi.ResetClipboard(selection))
+	if err != nil {
+		return fmt.Errorf("failed to reset clipboard: %w", err)
+	}
+	return nil
+}

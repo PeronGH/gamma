@@ -548,6 +548,23 @@ func (s *TerminalScreen) WindowTitle() string {
 	return s.windowTitle
 }
 
+// SetClipboard writes content to the terminal clipboard using OSC 52.
+// This is a fire-and-forget operation with no persistent state.
+//
+// The changes can be committed to the underlying writer by calling the
+// [TerminalScreen.Flush] method.
+func (s *TerminalScreen) SetClipboard(selection ClipboardSelection, content string) error {
+	return EncodeClipboard(s.buf, selection, content)
+}
+
+// ResetClipboard clears the terminal clipboard using OSC 52.
+//
+// The changes can be committed to the underlying writer by calling the
+// [TerminalScreen.Flush] method.
+func (s *TerminalScreen) ResetClipboard(selection ClipboardSelection) error {
+	return EncodeResetClipboard(s.buf, selection)
+}
+
 // SetKeyboardEnhancements sets the keyboard enhancements for the terminal,
 // allowing applications to receive enhanced keyboard input.
 //
