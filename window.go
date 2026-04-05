@@ -10,10 +10,11 @@ import (
 type Window struct {
 	*Buffer
 
-	method *WidthMethod
-	parent *Window
-	bounds Rectangle
-	view   bool // true if this window shares its parent's buffer
+	method   *WidthMethod
+	parent   *Window
+	children []*Window // ordered back-to-front (last = topmost)
+	bounds   Rectangle
+	view     bool // true if this window shares its parent's buffer
 }
 
 var (
@@ -133,6 +134,62 @@ func (w *Window) MoveBy(dx, dy int) {
 	w.bounds.Max.Y += dy
 }
 
+// Children returns a copy of the window's children slice, ordered
+// back-to-front (last element is topmost).
+func (w *Window) Children() []*Window {
+	return append([]*Window(nil), w.children...)
+}
+
+// RemoveChild removes a child from this window's children list and sets the
+// child's parent to nil.
+func (w *Window) RemoveChild(child *Window) {
+	for i, c := range w.children {
+		if c == child {
+			w.children = append(w.children[:i], w.children[i+1:]...)
+			child.parent = nil
+			return
+		}
+	}
+}
+
+// BringToFront moves a child to the top of the z-order (end of children slice).
+func (w *Window) BringToFront(child *Window) {
+	for i, c := range w.children {
+		if c == child {
+			w.children = append(w.children[:i], w.children[i+1:]...)
+			w.children = append(w.children, child)
+			return
+		}
+	}
+}
+
+// SendToBack moves a child to the bottom of the z-order (start of children slice).
+func (w *Window) SendToBack(child *Window) {
+	for i, c := range w.children {
+		if c == child {
+			w.children = append(w.children[:i], w.children[i+1:]...)
+			w.children = append([]*Window{child}, w.children...)
+			return
+		}
+	}
+}
+
+// WindowAt returns the deepest child window containing the point (x, y),
+// which is relative to this window. Walks children front-to-back (topmost
+// first). Returns w itself if no child contains the point.
+func (w *Window) WindowAt(x, y int) *Window {
+	// Walk front-to-back (reverse order).
+	for i := len(w.children) - 1; i >= 0; i-- {
+		child := w.children[i]
+		p := Pos(x, y)
+		if p.In(child.bounds) {
+			// Recurse with coordinates translated to child's space.
+			return child.WindowAt(x-child.bounds.Min.X, y-child.bounds.Min.Y)
+		}
+	}
+	return w
+}
+
 // Clone creates an exact copy of the window, including its buffer and values.
 // The cloned window will have the same parent and method as the original
 // window.
@@ -245,6 +302,12 @@ func (w *Window) Draw(scr Screen, area Rectangle) {
 			x += width
 		}
 	}
+
+	// Draw children in z-order (back-to-front).
+	for _, child := range w.children {
+		childArea := child.bounds.Add(area.Min)
+		child.Draw(scr, childArea)
+	}
 }
 
 // SetWidthMethod sets the width method for the window.
@@ -265,5 +328,8 @@ func newWindow(parent *Window, x, y, width, height int, method *WidthMethod, vie
 	w.method = method
 	w.bounds = Rect(x, y, width, height)
 	w.view = view
+	if parent != nil {
+		parent.children = append(parent.children, w)
+	}
 	return w
 }

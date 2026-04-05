@@ -270,3 +270,122 @@ func TestWindowWidthMethod(t *testing.T) {
 		t.Fatal("expected non-nil WidthMethod")
 	}
 }
+
+func TestChildAutoRegistration(t *testing.T) {
+	root := NewScreen(40, 20)
+	a := root.NewWindow(0, 0, 10, 5)
+	b := root.NewWindow(10, 0, 10, 5)
+
+	children := root.Children()
+	if len(children) != 2 {
+		t.Fatalf("expected 2 children, got %d", len(children))
+	}
+	if children[0] != a || children[1] != b {
+		t.Fatal("children order mismatch")
+	}
+}
+
+func TestRemoveChild(t *testing.T) {
+	root := NewScreen(40, 20)
+	a := root.NewWindow(0, 0, 10, 5)
+	root.NewWindow(10, 0, 10, 5) // b
+
+	root.RemoveChild(a)
+	if len(root.Children()) != 1 {
+		t.Fatalf("expected 1 child after removal, got %d", len(root.Children()))
+	}
+	if a.Parent() != nil {
+		t.Fatal("removed child should have nil parent")
+	}
+}
+
+func TestBringToFront(t *testing.T) {
+	root := NewScreen(40, 20)
+	a := root.NewWindow(0, 0, 10, 5)
+	b := root.NewWindow(10, 0, 10, 5)
+	c := root.NewWindow(20, 0, 10, 5)
+
+	root.BringToFront(a)
+	children := root.Children()
+	if children[0] != b || children[1] != c || children[2] != a {
+		t.Fatal("BringToFront: expected b, c, a")
+	}
+}
+
+func TestSendToBack(t *testing.T) {
+	root := NewScreen(40, 20)
+	a := root.NewWindow(0, 0, 10, 5)
+	b := root.NewWindow(10, 0, 10, 5)
+	c := root.NewWindow(20, 0, 10, 5)
+
+	root.SendToBack(c)
+	children := root.Children()
+	if children[0] != c || children[1] != a || children[2] != b {
+		t.Fatal("SendToBack: expected c, a, b")
+	}
+}
+
+func TestWindowAt(t *testing.T) {
+	root := NewScreen(40, 20)
+	a := root.NewWindow(0, 0, 10, 5)
+	b := root.NewWindow(5, 2, 10, 5) // overlaps with a
+
+	// Point in b (topmost due to z-order) and a overlap region.
+	hit := root.WindowAt(7, 3)
+	if hit != b {
+		t.Fatal("expected hit on b (topmost)")
+	}
+
+	// Point only in a.
+	hit = root.WindowAt(1, 1)
+	if hit != a {
+		t.Fatal("expected hit on a")
+	}
+
+	// Point outside all children.
+	hit = root.WindowAt(30, 15)
+	if hit != root {
+		t.Fatal("expected hit on root")
+	}
+}
+
+func TestWindowAtNested(t *testing.T) {
+	root := NewScreen(40, 20)
+	parent := root.NewWindow(5, 5, 20, 10)
+	child := parent.NewWindow(2, 2, 5, 3)
+
+	// Hit the nested child: (5+2, 5+2) = (7, 7) in root coords.
+	hit := root.WindowAt(7, 7)
+	if hit != child {
+		t.Fatal("expected hit on nested child")
+	}
+
+	// Hit parent but not child.
+	hit = root.WindowAt(6, 6)
+	if hit != parent {
+		t.Fatal("expected hit on parent")
+	}
+}
+
+func TestDrawCompositesChildren(t *testing.T) {
+	root := NewScreen(20, 10)
+	child := root.NewWindow(5, 3, 3, 2)
+
+	// Fill child with X.
+	cell := &Cell{Content: "X", Width: 1}
+	child.Fill(cell)
+
+	// Draw root onto a target buffer.
+	target := NewScreen(20, 10)
+	root.Draw(target, root.Bounds())
+
+	// Child content should appear at (5, 3) on target.
+	c := target.CellAt(5, 3)
+	if c == nil || c.Content != "X" {
+		t.Fatalf("expected X at (5,3) on target, got %v", c)
+	}
+	c = target.CellAt(7, 4)
+	if c == nil || c.Content != "X" {
+		t.Fatalf("expected X at (7,4) on target, got %v", c)
+	}
+}
