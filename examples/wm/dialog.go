@@ -12,11 +12,10 @@ const (
 )
 
 var (
-	dialogStyle      = gamma.Style{Fg: ansi.IndexedColor(236), Bg: ansi.IndexedColor(253)}
-	dialogBorder     = gamma.Style{Fg: ansi.IndexedColor(240), Bg: ansi.IndexedColor(253)}
-	dialogTitleStyle = gamma.Style{Fg: ansi.IndexedColor(255), Bg: ansi.IndexedColor(24), Attrs: gamma.AttrBold}
+	dialogStyle      = gamma.Style{Fg: ansi.IndexedColor(236), Bg: ansi.IndexedColor(252)}
+	dialogTitleStyle = gamma.Style{Fg: ansi.IndexedColor(255), Bg: ansi.IndexedColor(60), Attrs: gamma.AttrBold}
 	inputStyle       = gamma.Style{Fg: ansi.IndexedColor(235), Bg: ansi.IndexedColor(255), Underline: gamma.UnderlineSingle}
-	hintStyle        = gamma.Style{Fg: ansi.IndexedColor(245), Bg: ansi.IndexedColor(253)}
+	hintStyle        = gamma.Style{Fg: ansi.IndexedColor(245), Bg: ansi.IndexedColor(252)}
 )
 
 // Dialog is a modal text-input dialog.
@@ -77,26 +76,17 @@ func (d *Dialog) paint() {
 		return
 	}
 
-	w, h := d.Win.Width(), d.Win.Height()
+	w := d.Win.Width()
 	innerWidth := max(0, w-4)
 	d.Win.Fill(&gamma.Cell{Content: " ", Width: 1, Style: dialogStyle})
 
-	for x := 1; x < w-1; x++ {
+	for x := 0; x < w; x++ {
 		d.Win.SetCell(x, 0, &gamma.Cell{Content: " ", Width: 1, Style: dialogTitleStyle})
-		d.Win.SetCell(x, h-1, &gamma.Cell{Content: "─", Width: 1, Style: dialogBorder})
 	}
-	for y := 1; y < h-1; y++ {
-		d.Win.SetCell(0, y, &gamma.Cell{Content: "│", Width: 1, Style: dialogBorder})
-		d.Win.SetCell(w-1, y, &gamma.Cell{Content: "│", Width: 1, Style: dialogBorder})
-	}
-	d.Win.SetCell(0, 0, &gamma.Cell{Content: "╭", Width: 1, Style: dialogBorder})
-	d.Win.SetCell(w-1, 0, &gamma.Cell{Content: "╮", Width: 1, Style: dialogBorder})
-	d.Win.SetCell(0, h-1, &gamma.Cell{Content: "╰", Width: 1, Style: dialogBorder})
-	d.Win.SetCell(w-1, h-1, &gamma.Cell{Content: "╯", Width: 1, Style: dialogBorder})
 
 	ctx := screen.NewContext(d.Win)
 	ctx.SetStyle(dialogTitleStyle)
-	ctx.DrawString(truncateToWidth(d.Win.WidthMethod(), " new window ", innerWidth), 2, 0)
+	ctx.DrawString(truncateToWidth(d.Win.WidthMethod(), " New Window ", innerWidth), 1, 0)
 
 	ctx.SetStyle(dialogStyle)
 	ctx.DrawString(truncateToWidth(d.Win.WidthMethod(), "Name", innerWidth), 2, 1)
