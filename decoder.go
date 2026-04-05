@@ -531,12 +531,12 @@ func (p *EventDecoder) parseCsi(b []byte) (int, Event) {
 		cs, _, _ := pa.Param(4, 0)
 		rc, _, _ := pa.Param(5, 0)
 		event := p.parseWin32InputKeyEvent(
-			uint16(vk),         //nolint:gosec // Vk wVirtualKeyCode
-			uint16(sc),         //nolint:gosec // Sc wVirtualScanCode
+			uint16(vk),        
+			uint16(sc),        
 			rune(uc),           // Uc UnicodeChar
 			kd == 1,            // Kd bKeyDown
-			uint32(cs),         //nolint:gosec // Cs dwControlKeyState
-			max(1, uint16(rc)), //nolint:gosec // Rc wRepeatCount
+			uint32(cs),        
+			max(1, uint16(rc)),
 		)
 
 		return i, event
@@ -1785,7 +1785,7 @@ func isDarkColor(c color.Color) bool {
 	}
 
 	r, g, b, _ := c.RGBA()
-	_, _, l := rgbToHSL(uint8(r>>8), uint8(g>>8), uint8(b>>8)) //nolint:gosec
+	_, _, l := rgbToHSL(uint8(r>>8), uint8(g>>8), uint8(b>>8))
 	return l < 0.5
 }
 

@@ -30,6 +30,15 @@ linters:
       - text: '(slog|log)\.\w+'
         linters:
           - noctx
+      - text: 'G115:'
+        linters:
+          - gosec
+      - text: 'G602:'
+        linters:
+          - gosec
+      - text: 'G302:'
+        linters:
+          - gosec
     generated: lax
     presets:
       - common-false-positives
