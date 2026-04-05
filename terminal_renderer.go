@@ -944,16 +944,20 @@ func (s *TerminalRenderer) transformLine(newbuf *RenderBuffer, y int) {
 				}
 			}
 
-			// TODO: This can sometimes send unnecessary cursor movements with
-			// negative or zero ranges. This could happen on a screen resize
-			// where oLastCell < nLastCell and oLastCell is -1 or less.
-			// Investigate and fix.
-			s.move(newbuf, n+1, y)
-			ichCost := 3 + nLastCell - oLastCell
-			if s.caps.Contains(capICH) && (nLastCell < nLastNonBlank || ichCost > (m-n)) {
-				s.putRange(newbuf, oldLine, newLine, y, n+1, m)
+			if nLastCell-oLastCell <= 0 {
+				// After narrowing, the insert count is zero or negative
+				// (e.g. oLastCell went to -1 during resize). Fall back to
+				// rewriting the changed range.
+				s.move(newbuf, firstCell, y)
+				s.putRange(newbuf, oldLine, newLine, y, firstCell, m)
 			} else {
-				s.insertCells(newbuf, newLine[n+1:], nLastCell-oLastCell)
+				s.move(newbuf, n+1, y)
+				ichCost := 3 + nLastCell - oLastCell
+				if s.caps.Contains(capICH) && (nLastCell < nLastNonBlank || ichCost > (m-n)) {
+					s.putRange(newbuf, oldLine, newLine, y, n+1, m)
+				} else {
+					s.insertCells(newbuf, newLine[n+1:], nLastCell-oLastCell)
+				}
 			}
 		} else if oLastCell > nLastCell {
 			s.move(newbuf, n+1, y)
