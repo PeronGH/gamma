@@ -29,8 +29,8 @@ import (
 	"hash/fnv"
 	"math"
 
-	uv "github.com/charmbracelet/ultraviolet"
-	"github.com/charmbracelet/ultraviolet/internal/casso"
+	uv "github.com/PeronGH/ultraviolet"
+	"github.com/PeronGH/ultraviolet/internal/casso"
 )
 
 // floatPrecisionMultiplier scales cell positions into a higher-precision

@@ -2,7 +2,7 @@
 package screen
 
 import (
-	uv "github.com/charmbracelet/ultraviolet"
+	uv "github.com/PeronGH/ultraviolet"
 )
 
 // Clear clears the screen with empty cells. This is equivalent to filling the

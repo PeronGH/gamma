@@ -1,4 +1,4 @@
-module github.com/charmbracelet/ultraviolet
+module github.com/PeronGH/ultraviolet
 
 go 1.25.0
 

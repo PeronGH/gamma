@@ -4,8 +4,8 @@ import (
 	"log"
 	"strings"
 
-	uv "github.com/charmbracelet/ultraviolet"
-	"github.com/charmbracelet/ultraviolet/screen"
+	uv "github.com/PeronGH/ultraviolet"
+	"github.com/PeronGH/ultraviolet/screen"
 )
 
 func main() {
